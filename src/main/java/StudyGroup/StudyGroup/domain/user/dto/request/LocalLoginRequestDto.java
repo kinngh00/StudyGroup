@@ -13,4 +13,3 @@ public record LocalLoginRequestDto(
     @Size(min = 8, max = 50, message = "비밀번호는 8자 이상 50자 이하로만 가능합니다.")
     String password
 ) { }
-

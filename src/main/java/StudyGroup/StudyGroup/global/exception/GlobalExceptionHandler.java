@@ -16,13 +16,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponseDto<Void>> customExceptionHandler(CustomException e) {
     ErrorCode errorCode = e.getErrorCode();
     int status = errorCode.getStatus().value();
-    return ResponseEntity
-        .status(status)
-        .body(ApiResponseDto.error(
-            status,
-            errorCode.name(),
-            e.getMessage()
-        ));
+
+    return ResponseEntity.status(status)
+        .body(ApiResponseDto.error(status, errorCode.name(), e.getMessage()));
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -30,8 +26,8 @@ public class GlobalExceptionHandler {
     String message = e.getBindingResult().getFieldError() == null
         ? ErrorCode.INVALID_REQUEST.getMessage()
         : e.getBindingResult().getFieldError().getDefaultMessage();
-    return ResponseEntity
-        .status(ErrorCode.INVALID_REQUEST.getStatus().value())
+
+    return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus().value())
         .body(ApiResponseDto.error(
             ErrorCode.INVALID_REQUEST.getStatus().value(),
             ErrorCode.INVALID_REQUEST.name(),
@@ -41,8 +37,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ApiResponseDto<Void>> httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException e) {
-    return ResponseEntity
-        .status(ErrorCode.INVALID_REQUEST.getStatus().value())
+    return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus().value())
         .body(ApiResponseDto.error(
             ErrorCode.INVALID_REQUEST.getStatus().value(),
             ErrorCode.INVALID_REQUEST.name(),

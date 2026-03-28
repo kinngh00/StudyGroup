@@ -17,4 +17,3 @@ public record LocalSignupRequestDto(
     @Size(min = 2, max = 20, message = "이름은 2자 이상 20자 이하로만 가능합니다.")
     String name
 ) { }
-
