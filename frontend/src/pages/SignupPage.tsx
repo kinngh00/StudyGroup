@@ -8,12 +8,34 @@ import { Spinner } from "@/components/atoms/Spinner";
 import { useSignupMutation } from "@/api/baseApi";
 import { useToast } from "@/components/organisms/ToastProvider";
 
+type ApiErrorShape = {
+  message?: string;
+  data?: { message?: string };
+};
+
+const normalizeEmail = (value: string) =>
+  value.normalize("NFKC").replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
+
 const signupSchema = z
   .object({
-    name: z.string().min(2, "이름은 2자 이상이어야 합니다."),
-    email: z.string().email("유효한 이메일을 입력해 주세요."),
-    password: z.string().min(8, "비밀번호는 8자 이상이어야 합니다."),
-    passwordConfirm: z.string()
+    name: z
+      .string({ required_error: "이름은 필수입니다." })
+      .min(1, "이름은 필수입니다.")
+      .min(2, "이름은 2자 이상이어야 합니다."),
+    email: z.preprocess(
+      (value) => (typeof value === "string" ? normalizeEmail(value) : value),
+      z
+        .string({ required_error: "이메일은 필수입니다." })
+        .min(1, "이메일은 필수입니다.")
+        .email("유효한 이메일을 입력해 주세요.")
+    ),
+    password: z
+      .string({ required_error: "비밀번호는 필수입니다." })
+      .min(1, "비밀번호는 필수입니다.")
+      .min(8, "비밀번호는 8자 이상이어야 합니다."),
+    passwordConfirm: z
+      .string({ required_error: "비밀번호 확인은 필수입니다." })
+      .min(1, "비밀번호 확인은 필수입니다.")
   })
   .refine((value) => value.password === value.passwordConfirm, {
     path: ["passwordConfirm"],
@@ -37,8 +59,10 @@ export const SignupPage = () => {
       await signup({ name, email, password }).unwrap();
       notify("success", "회원가입 완료", "이제 로그인할 수 있습니다.");
       navigate("/login");
-    } catch {
-      notify("error", "회원가입 실패", "잠시 후 다시 시도해 주세요.");
+    } catch (error) {
+      const err = error as ApiErrorShape;
+      const detail = err?.data?.message ?? err?.message ?? "잠시 후 다시 시도해 주세요.";
+      notify("error", "회원가입 실패", detail);
     }
   };
 

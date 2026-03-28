@@ -5,9 +5,21 @@ import { Input } from "@/components/atoms/Input";
 import { Button } from "@/components/atoms/Button";
 import { Spinner } from "@/components/atoms/Spinner";
 
+const normalizeEmail = (value: string) =>
+  value.normalize("NFKC").replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
+
 const loginSchema = z.object({
-  email: z.string().email("유효한 이메일을 입력해 주세요."),
-  password: z.string().min(8, "비밀번호는 8자 이상이어야 합니다.")
+  email: z.preprocess(
+    (value) => (typeof value === "string" ? normalizeEmail(value) : value),
+    z
+      .string({ required_error: "이메일은 필수입니다." })
+      .min(1, "이메일은 필수입니다.")
+      .email("유효한 이메일을 입력해 주세요.")
+  ),
+  password: z
+    .string({ required_error: "비밀번호는 필수입니다." })
+    .min(1, "비밀번호는 필수입니다.")
+    .min(8, "비밀번호는 8자 이상이어야 합니다.")
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;

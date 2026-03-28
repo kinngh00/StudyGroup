@@ -23,6 +23,9 @@ const axiosBaseQuery =
       const result = await apiClient({ url, method, data, params });
       const payload = result.data as {
         success?: boolean;
+        status?: number;
+        code?: string;
+        message?: string;
         data?: unknown;
         error?: { code?: string; message?: string };
       };
@@ -41,14 +44,20 @@ const axiosBaseQuery =
         return { data: payload.data };
       }
 
+      // Support backend wrapper response({status,code,message,data})
+      if (payload && typeof payload === "object" && "code" in payload && "data" in payload) {
+        return { data: payload.data };
+      }
+
       return { data: result.data };
     } catch (axiosError) {
       const err = axiosError as AxiosError;
+      const responseData = err.response?.data as { message?: string } | undefined;
       return {
         error: {
           status: err.response?.status,
           data: err.response?.data,
-          message: err.message
+          message: responseData?.message ?? err.message
         }
       };
     }
@@ -59,11 +68,11 @@ export const studyGroupApi = createApi({
   baseQuery: axiosBaseQuery(),
   tagTypes: ["Study", "Recruitment", "Application", "Member", "Schedule", "Role", "Blacklist", "Notice"],
   endpoints: (builder) => ({
-    signup: builder.mutation<void, { name: string; email: string; password: string }>({
-      query: (body) => ({ url: "/api/auth/signup", method: "POST", data: body })
+    signup: builder.mutation<{ email: string; name: string }, { name: string; email: string; password: string }>({
+      query: (body) => ({ url: "/api/users/signup", method: "POST", data: body })
     }),
-    login: builder.mutation<{ token: string; user: { id: number; name: string; email: string } }, { email: string; password: string }>({
-      query: (body) => ({ url: "/api/auth/login", method: "POST", data: body })
+    login: builder.mutation<{ email: string; name: string; accessToken: string }, { email: string; password: string }>({
+      query: (body) => ({ url: "/api/users/login", method: "POST", data: body })
     }),
     getStudies: builder.query<Study[], { name?: string; finished?: boolean }>({
       query: (params) => ({ url: "/api/studies", method: "GET", params }),

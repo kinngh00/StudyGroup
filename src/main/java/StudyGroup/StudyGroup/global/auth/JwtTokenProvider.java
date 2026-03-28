@@ -1,0 +1,72 @@
+package StudyGroup.StudyGroup.global.auth;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.List;
+import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
+
+@Component
+public class JwtTokenProvider {
+
+  @Value("${jwt.secret}")
+  private String secret;
+
+  @Value("${jwt.access-token-expiration}")
+  private long accessTokenExpiration;
+
+  private SecretKey secretKey;
+
+  @PostConstruct
+  public void init() {
+    this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+  }
+
+  public String createToken(Long userId, String email, String role) {
+    Date now = new Date();
+    Date expiredAt = new Date(now.getTime() + accessTokenExpiration);
+
+    return Jwts.builder()
+        .subject(String.valueOf(userId))
+        .claim("email", email)
+        .claim("role", role)
+        .issuedAt(now)
+        .expiration(expiredAt)
+        .signWith(secretKey)
+        .compact();
+  }
+
+  public boolean validateToken(String token) {
+    try {
+      Jwts.parser()
+          .verifyWith(secretKey)
+          .build()
+          .parseSignedClaims(token);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public Authentication getAuthentication(String token) {
+    Claims claims = Jwts.parser()
+        .verifyWith(secretKey)
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
+
+    String userId = claims.getSubject();
+    String role = claims.get("role", String.class);
+    List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+
+    return new UsernamePasswordAuthenticationToken(userId, token, authorities);
+  }
+}
