@@ -14,11 +14,18 @@ export const LoginPage = () => {
   const handleSubmit = async (values: LoginFormValues) => {
     try {
       const response = await login(values).unwrap();
-      dispatch(setCredentials({ token: response.token, user: response.user }));
+      dispatch(
+        setCredentials({
+          token: response.accessToken,
+          user: { id: 0, name: response.name, email: response.email }
+        })
+      );
       notify("success", "로그인 성공");
       navigate("/dashboard");
-    } catch {
-      notify("error", "로그인 실패", "이메일과 비밀번호를 확인해 주세요.");
+    } catch (error) {
+      const err = error as { message?: string; data?: { message?: string } };
+      const detail = err?.data?.message ?? err?.message ?? "이메일과 비밀번호를 확인해 주세요.";
+      notify("error", "로그인 실패", detail);
     }
   };
 
