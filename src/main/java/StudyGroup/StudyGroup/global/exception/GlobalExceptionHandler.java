@@ -12,20 +12,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(CustomException.class)
-  public ResponseEntity<ApiResponseDto<Void>> customExceptionHandler(CustomException e) {
-    ErrorCode errorCode = e.getErrorCode();
+  @ExceptionHandler(BusinessException.class)
+  public ResponseEntity<ApiResponseDto<Void>> businessExceptionHandler(BusinessException exception) {
+    ErrorCode errorCode = exception.getErrorCode();
     int status = errorCode.getStatus().value();
 
     return ResponseEntity.status(status)
-        .body(ApiResponseDto.error(status, errorCode.name(), e.getMessage()));
+        .body(ApiResponseDto.error(status, errorCode.name(), exception.getMessage()));
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ApiResponseDto<Void>> validationExceptionHandler(MethodArgumentNotValidException e) {
-    String message = e.getBindingResult().getFieldError() == null
+  public ResponseEntity<ApiResponseDto<Void>> validationExceptionHandler(MethodArgumentNotValidException exception) {
+    String message = exception.getBindingResult().getFieldError() == null
         ? ErrorCode.INVALID_REQUEST.getMessage()
-        : e.getBindingResult().getFieldError().getDefaultMessage();
+        : exception.getBindingResult().getFieldError().getDefaultMessage();
 
     return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus().value())
         .body(ApiResponseDto.error(
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
-  public ResponseEntity<ApiResponseDto<Void>> httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException e) {
+  public ResponseEntity<ApiResponseDto<Void>> httpMessageNotReadableExceptionHandler() {
     return ResponseEntity.status(ErrorCode.INVALID_REQUEST.getStatus().value())
         .body(ApiResponseDto.error(
             ErrorCode.INVALID_REQUEST.getStatus().value(),
@@ -46,8 +46,10 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ApiResponseDto<Void>> exceptionHandler(Exception e) {
-    log.error("Unhandled exception occurred", e);
-    return customExceptionHandler(new CustomException(ErrorCode.INTERNAL_SERVER_ERROR));
+  public ResponseEntity<ApiResponseDto<Void>> exceptionHandler(Exception exception) {
+    log.error("Unhandled exception occurred", exception);
+    int status = ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value();
+    return ResponseEntity.status(status)
+        .body(ApiResponseDto.error(status, ErrorCode.INTERNAL_SERVER_ERROR.name(), ErrorCode.INTERNAL_SERVER_ERROR.getMessage()));
   }
 }
