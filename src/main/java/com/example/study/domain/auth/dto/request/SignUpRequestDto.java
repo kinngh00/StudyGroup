@@ -1,10 +1,10 @@
-package com.example.study.domain.user.dto;
+package com.example.study.domain.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record UserRequestDto(
+public record SignUpRequestDto(
     @NotBlank(message = "Email is required.")
     @Email(message = "Email format is invalid.")
     String email,
@@ -17,7 +17,7 @@ public record UserRequestDto(
     @Size(min = 2, max = 20, message = "Name must be between 2 and 20 characters.")
     String name
 ) {
-  public UserRequestDto {
+  public SignUpRequestDto {
     email = email == null ? null : email.trim().toLowerCase();
     name = name == null ? null : name.trim();
   }

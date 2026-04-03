@@ -9,26 +9,21 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = false)
+  @Column(nullable = false, unique = true)
   private String email;
 
   @Column(nullable = false)
@@ -49,19 +44,20 @@ public class User {
   @UpdateTimestamp
   private LocalDateTime updatedAt;
 
-  public static User createUser(String email, String password, String name) {
-    User user = new User();
-    user.email = email.trim().toLowerCase();
-    user.password = password;
-    user.name = name;
-    user.role = UserRole.USER;
-
-    return user;
-  }
-
-  public void updateUser(String email, String password, String name) {
+  private User(String email, String password, String name, UserRole role) {
     this.email = email;
     this.password = password;
+    this.name = name;
+    this.role = role;
+  }
+
+  public static User create(String email, String encodedPassword, String name) {
+    return new User(email, encodedPassword, name, UserRole.USER);
+  }
+
+  public void updateProfile(String email, String encodedPassword, String name) {
+    this.email = email;
+    this.password = encodedPassword;
     this.name = name;
   }
 }
