@@ -1,5 +1,6 @@
 package StudyGroup.StudyGroup.domain.user.controller;
 
+import StudyGroup.StudyGroup.domain.user.dto.request.GoogleLoginRequestDto;
 import StudyGroup.StudyGroup.domain.user.dto.request.LocalLoginRequestDto;
 import StudyGroup.StudyGroup.domain.user.dto.request.LocalSignupRequestDto;
 import StudyGroup.StudyGroup.domain.user.dto.response.LocalLoginResponseDto;
@@ -16,32 +17,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class UserController {
   private final UserService userService;
 
-  @PostMapping("/signup")
+  @PostMapping("/local/signup")
   public ResponseEntity<ApiResponseDto<LocalSignupResponseDto>> localSignup(
-      @RequestBody @Valid LocalSignupRequestDto requestDto
+      @RequestBody @Valid LocalSignupRequestDto localSignupRequestDto
   ) {
-    LocalSignupResponseDto response = userService.localSignup(requestDto);
+    LocalSignupResponseDto response = userService.localSignup(localSignupRequestDto);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(
-            HttpStatus.CREATED.value(),
-            "회원가입이 완료되었습니다.",
-            response
-        ));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "회원가입이 완료되었습니다.", response));
   }
 
-  @PostMapping("/login")
+  @PostMapping("/local/login")
   public ResponseEntity<ApiResponseDto<LocalLoginResponseDto>> localLogin(
-      @RequestBody @Valid LocalLoginRequestDto requestDto
+      @RequestBody @Valid LocalLoginRequestDto localLoginRequestDto
   ) {
-    LocalLoginResponseDto response = userService.localLogin(requestDto);
-    return ResponseEntity.ok(ApiResponseDto.success(
-        "로그인에 성공했습니다.",
-        response
-    ));
+    LocalLoginResponseDto response = userService.localLogin(localLoginRequestDto);
+    return ResponseEntity.ok(ApiResponseDto.success("로그인에 성공했습니다.", response));
+  }
+
+  @PostMapping("/google/login")
+  public ResponseEntity<ApiResponseDto<LocalLoginResponseDto>> googleLogin(
+      @RequestBody @Valid GoogleLoginRequestDto googleLoginRequestDto
+  ) {
+    LocalLoginResponseDto response = userService.googleLogin(googleLoginRequestDto);
+    return ResponseEntity.ok(ApiResponseDto.success("구글 로그인에 성공했습니다.", response));
   }
 }
