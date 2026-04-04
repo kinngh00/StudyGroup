@@ -12,4 +12,6 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
   Optional<StudyMember> findByStudyGroupIdAndRole(Long studyGroupId, StudyMemberRole role);
 
   long countByStudyGroupId(Long studyGroupId);
+
+  void deleteByStudyGroupId(Long studyGroupId);
 }

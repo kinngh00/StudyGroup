@@ -12,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,19 +19,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(
-    name = "study_members",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uk_study_members_study_user", columnNames = {"study_group_id", "user_id"})
-    }
-)
-public class StudyMember {
+@Table(name = "recruitment_posts")
+public class RecruitmentPost {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,18 +38,30 @@ public class StudyMember {
   private StudyGroup studyGroup;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+  @JoinColumn(name = "author_user_id", nullable = false)
+  private User authorUser;
+
+  @Column(nullable = false, length = 100)
+  private String title;
+
+  @Column(nullable = false, length = 2000)
+  private String content;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
-  private StudyMemberRole role;
+  private RecruitmentPostStatus status;
 
   @Column(nullable = false, updatable = false)
   @CreationTimestamp
-  private LocalDateTime joinedAt;
+  private LocalDateTime createdAt;
 
-  public void changeRole(StudyMemberRole role) {
-    this.role = role;
+  @Column(nullable = false)
+  @UpdateTimestamp
+  private LocalDateTime updatedAt;
+
+  public void update(String title, String content, RecruitmentPostStatus status) {
+    this.title = title;
+    this.content = content;
+    this.status = status;
   }
 }

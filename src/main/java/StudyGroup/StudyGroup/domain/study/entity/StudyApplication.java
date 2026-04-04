@@ -12,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,41 +19,64 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(
-    name = "study_members",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uk_study_members_study_user", columnNames = {"study_group_id", "user_id"})
-    }
-)
-public class StudyMember {
+@Table(name = "study_applications")
+public class StudyApplication {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "recruitment_post_id", nullable = false)
+  private RecruitmentPost recruitmentPost;
+
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "study_group_id", nullable = false)
   private StudyGroup studyGroup;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+  @JoinColumn(name = "applicant_user_id", nullable = false)
+  private User applicantUser;
+
+  @Column(nullable = false, length = 500)
+  private String motivation;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
-  private StudyMemberRole role;
+  private ApplicationStatus status;
+
+  @Column
+  private LocalDateTime decidedAt;
 
   @Column(nullable = false, updatable = false)
   @CreationTimestamp
-  private LocalDateTime joinedAt;
+  private LocalDateTime createdAt;
 
-  public void changeRole(StudyMemberRole role) {
-    this.role = role;
+  @Column(nullable = false)
+  @UpdateTimestamp
+  private LocalDateTime updatedAt;
+
+  public void approve() {
+    this.status = ApplicationStatus.APPROVED;
+    this.decidedAt = LocalDateTime.now();
+  }
+
+  public void reject() {
+    this.status = ApplicationStatus.REJECTED;
+    this.decidedAt = LocalDateTime.now();
+  }
+
+  public void reapply(RecruitmentPost recruitmentPost, String motivation) {
+    this.recruitmentPost = recruitmentPost;
+    this.motivation = motivation;
+    this.status = ApplicationStatus.PENDING;
+    this.decidedAt = null;
   }
 }

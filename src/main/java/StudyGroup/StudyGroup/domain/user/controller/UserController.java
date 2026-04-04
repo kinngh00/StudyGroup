@@ -26,24 +26,24 @@ public class UserController {
   public ResponseEntity<ApiResponseDto<LocalSignupResponseDto>> localSignup(
       @RequestBody @Valid LocalSignupRequestDto localSignupRequestDto
   ) {
-    LocalSignupResponseDto response = userService.localSignup(localSignupRequestDto);
+    LocalSignupResponseDto localSignupResponseDto = userService.localSignup(localSignupRequestDto);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "회원가입이 완료되었습니다.", response));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "회원가입이 완료되었습니다.", localSignupResponseDto));
   }
 
   @PostMapping("/local/login")
   public ResponseEntity<ApiResponseDto<LocalLoginResponseDto>> localLogin(
       @RequestBody @Valid LocalLoginRequestDto localLoginRequestDto
   ) {
-    LocalLoginResponseDto response = userService.localLogin(localLoginRequestDto);
-    return ResponseEntity.ok(ApiResponseDto.success("로그인에 성공했습니다.", response));
+    LocalLoginResponseDto localLoginResponseDto = userService.localLogin(localLoginRequestDto);
+    return ResponseEntity.ok(ApiResponseDto.success("로그인에 성공했습니다.", localLoginResponseDto));
   }
 
   @PostMapping("/google/login")
   public ResponseEntity<ApiResponseDto<LocalLoginResponseDto>> googleLogin(
       @RequestBody @Valid GoogleLoginRequestDto googleLoginRequestDto
   ) {
-    LocalLoginResponseDto response = userService.googleLogin(googleLoginRequestDto);
-    return ResponseEntity.ok(ApiResponseDto.success("구글 로그인에 성공했습니다.", response));
+    LocalLoginResponseDto localLoginResponseDto = userService.googleLogin(googleLoginRequestDto);
+    return ResponseEntity.ok(ApiResponseDto.success("구글 로그인에 성공했습니다.", localLoginResponseDto));
   }
 }

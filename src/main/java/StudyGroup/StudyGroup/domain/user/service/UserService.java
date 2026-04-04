@@ -51,14 +51,17 @@ public class UserService {
 
   @Transactional
   public LocalSignupResponseDto localSignup(LocalSignupRequestDto localSignupRequestDto) {
-    if (userRepository.existsByEmail(localSignupRequestDto.email())) {
+    String normalizedEmail = localSignupRequestDto.normalizedEmail();
+    String normalizedName = localSignupRequestDto.normalizedName();
+
+    if (userRepository.existsByEmail(normalizedEmail)) {
       throw new DuplicateEmailException();
     }
 
     User user = User.builder()
-        .email(localSignupRequestDto.email())
+        .email(normalizedEmail)
         .password(passwordEncoder.encode(localSignupRequestDto.password()))
-        .name(localSignupRequestDto.name())
+        .name(normalizedName)
         .role(UserRole.USER)
         .provider(UserProvider.LOCAL)
         .build();
@@ -72,7 +75,9 @@ public class UserService {
   }
 
   public LocalLoginResponseDto localLogin(LocalLoginRequestDto localLoginRequestDto) {
-    User user = userRepository.findByEmail(localLoginRequestDto.email())
+    String normalizedEmail = localLoginRequestDto.normalizedEmail();
+
+    User user = userRepository.findByEmail(normalizedEmail)
         .orElseThrow(InvalidCredentialsException::new);
 
     if (!passwordEncoder.matches(localLoginRequestDto.password(), user.getPassword())) {

@@ -63,10 +63,12 @@ public class JwtTokenProvider {
         .parseSignedClaims(token)
         .getPayload();
 
-    String userId = claims.getSubject();
+    Long userId = Long.parseLong(claims.getSubject());
+    String email = claims.get("email", String.class);
     String role = claims.get("role", String.class);
+    AuthenticatedUserPrincipal authenticatedUserPrincipal = new AuthenticatedUserPrincipal(userId, email, role);
     List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-    return new UsernamePasswordAuthenticationToken(userId, token, authorities);
+    return new UsernamePasswordAuthenticationToken(authenticatedUserPrincipal, token, authorities);
   }
 }

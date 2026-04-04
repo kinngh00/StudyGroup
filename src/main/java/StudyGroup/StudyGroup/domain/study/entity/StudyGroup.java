@@ -7,8 +7,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,6 +45,10 @@ public class StudyGroup {
   @Column(nullable = false, length = 30)
   private StudyStatus status;
 
+  @OneToMany(mappedBy = "studyGroup")
+  @Builder.Default
+  private List<StudyMember> studyMembers = new ArrayList<>();
+
   @Column(nullable = false, updatable = false)
   @CreationTimestamp
   private LocalDateTime createdAt;
@@ -49,4 +56,11 @@ public class StudyGroup {
   @Column(nullable = false)
   @UpdateTimestamp
   private LocalDateTime updatedAt;
+
+  public void update(String name, String description, Integer maxMemberCount, StudyStatus status) {
+    this.name = name;
+    this.description = description;
+    this.maxMemberCount = maxMemberCount;
+    this.status = status;
+  }
 }
