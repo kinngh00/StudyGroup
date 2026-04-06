@@ -4,12 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record StudyNoticeUpdateRequestDto(
-    @NotBlank(message = "Notice title is required.")
-    @Size(min = 2, max = 100, message = "Notice title must be between 2 and 100 characters.")
+    @NotBlank(message = "{validation.notice.title.required}")
+    @Size(min = 2, max = 100, message = "{validation.notice.title.length}")
     String title,
 
-    @NotBlank(message = "Notice content is required.")
-    @Size(min = 2, max = 2000, message = "Notice content must be between 2 and 2000 characters.")
+    @NotBlank(message = "{validation.notice.content.required}")
+    @Size(min = 2, max = 2000, message = "{validation.notice.content.length}")
     String content,
 
     boolean pinned

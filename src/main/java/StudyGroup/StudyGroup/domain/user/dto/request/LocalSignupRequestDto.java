@@ -6,16 +6,16 @@ import jakarta.validation.constraints.Size;
 import java.util.Locale;
 
 public record LocalSignupRequestDto(
-    @NotBlank(message = "Email is required.")
-    @Email(message = "Email format is invalid.")
+    @NotBlank(message = "{validation.email.required}")
+    @Email(message = "{validation.email.invalid}")
     String email,
 
-    @NotBlank(message = "Password is required.")
-    @Size(min = 8, max = 50, message = "Password must be between 8 and 50 characters.")
+    @NotBlank(message = "{validation.password.required}")
+    @Size(min = 8, max = 50, message = "{validation.password.length}")
     String password,
 
-    @NotBlank(message = "Name is required.")
-    @Size(min = 2, max = 20, message = "Name must be between 2 and 20 characters.")
+    @NotBlank(message = "{validation.name.required}")
+    @Size(min = 2, max = 20, message = "{validation.name.length}")
     String name
 ) {
   public String normalizedEmail() {

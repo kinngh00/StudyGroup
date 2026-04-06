@@ -3,7 +3,7 @@ package StudyGroup.StudyGroup.domain.study.dto.request;
 import jakarta.validation.constraints.NotNull;
 
 public record StudyAdminAssignRequestDto(
-    @NotNull(message = "Target user id is required.")
+    @NotNull(message = "{validation.study.admin.user-id.required}")
     Long userId,
     boolean recruitmentWrite,
     boolean recruitmentApprove,

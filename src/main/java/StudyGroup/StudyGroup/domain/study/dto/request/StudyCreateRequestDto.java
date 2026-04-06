@@ -6,16 +6,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record StudyCreateRequestDto(
-    @NotBlank(message = "Study name is required.")
-    @Size(min = 2, max = 100, message = "Study name must be between 2 and 100 characters.")
+    @NotBlank(message = "{validation.study.name.required}")
+    @Size(min = 2, max = 100, message = "{validation.study.name.length}")
     String name,
 
-    @NotBlank(message = "Study description is required.")
-    @Size(min = 2, max = 1000, message = "Study description must be between 2 and 1000 characters.")
+    @NotBlank(message = "{validation.study.description.required}")
+    @Size(min = 2, max = 1000, message = "{validation.study.description.length}")
     String description,
 
-    @Min(value = 2, message = "Max member count must be at least 2.")
-    @Max(value = 100, message = "Max member count must be 100 or less.")
+    @Min(value = 2, message = "{validation.study.max-member-count.min}")
+    @Max(value = 100, message = "{validation.study.max-member-count.max}")
     Integer maxMemberCount
 ) {
   public String normalizedName() {

@@ -7,16 +7,16 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 public record StudyScheduleCreateRequestDto(
-    @NotBlank(message = "Schedule title is required.")
-    @Size(min = 2, max = 100, message = "Schedule title must be between 2 and 100 characters.")
+    @NotBlank(message = "{validation.schedule.title.required}")
+    @Size(min = 2, max = 100, message = "{validation.schedule.title.length}")
     String title,
 
-    @NotBlank(message = "Schedule description is required.")
-    @Size(min = 2, max = 1000, message = "Schedule description must be between 2 and 1000 characters.")
+    @NotBlank(message = "{validation.schedule.description.required}")
+    @Size(min = 2, max = 1000, message = "{validation.schedule.description.length}")
     String description,
 
-    @NotNull(message = "Schedule time is required.")
-    @Future(message = "Schedule time must be in the future.")
+    @NotNull(message = "{validation.schedule.time.required}")
+    @Future(message = "{validation.schedule.time.future}")
     LocalDateTime scheduledAt
 ) {
   public String normalizedTitle() {
