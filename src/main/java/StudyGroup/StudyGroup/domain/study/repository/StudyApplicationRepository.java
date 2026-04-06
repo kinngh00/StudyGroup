@@ -30,4 +30,6 @@ public interface StudyApplicationRepository extends JpaRepository<StudyApplicati
   );
 
   void deleteByRecruitmentPostId(Long recruitmentPostId);
+
+  void deleteByStudyGroupId(Long studyGroupId);
 }

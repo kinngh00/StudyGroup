@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
         .body(ApiResponseDto.error(
             CommonErrorCode.INVALID_REQUEST.getStatus().value(),
             CommonErrorCode.INVALID_REQUEST.getCode(),
-            "요청 본문 형식이 올바르지 않습니다."
+            CommonErrorCode.INVALID_REQUEST.getMessage()
         ));
   }
 

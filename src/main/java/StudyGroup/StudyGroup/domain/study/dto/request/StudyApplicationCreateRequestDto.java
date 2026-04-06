@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record StudyApplicationCreateRequestDto(
-    @NotBlank(message = "지원 동기는 필수입니다.")
-    @Size(min = 2, max = 500, message = "지원 동기는 2자 이상 500자 이하여야 합니다.")
+    @NotBlank(message = "���� ����� �ʼ��Դϴ�.")
+    @Size(min = 2, max = 500, message = "���� ����� 2�� �̻� 500�� ���Ͽ��� �մϴ�.")
     String motivation
 ) {
   public String normalizedMotivation() {

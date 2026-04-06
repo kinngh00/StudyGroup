@@ -10,4 +10,6 @@ public interface RecruitmentPostRepository extends JpaRepository<RecruitmentPost
   List<RecruitmentPost> findByStudyGroupIdOrderByCreatedAtDesc(Long studyGroupId);
 
   Optional<RecruitmentPost> findByIdAndStudyGroupId(Long recruitmentPostId, Long studyGroupId);
+
+  void deleteByStudyGroupId(Long studyGroupId);
 }

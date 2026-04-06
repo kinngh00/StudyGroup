@@ -1,4 +1,4 @@
-ï»¿import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/atoms/Button";
 import { Skeleton } from "@/components/atoms/Skeleton";
 import { useAppSelector } from "@/app/hooks";
@@ -13,7 +13,10 @@ export const StudyDetailPage = () => {
   const numericStudyId = Number(studyId);
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const { data: study, isLoading, isError } = useGetStudyQuery(numericStudyId, { skip: Number.isNaN(numericStudyId) });
-  const { data: recruitment = [], isLoading: recruitmentLoading } = useGetRecruitmentsQuery({ studyId: numericStudyId }, { skip: Number.isNaN(numericStudyId) });
+  const { data: recruitment = [], isLoading: recruitmentLoading } = useGetRecruitmentsQuery(
+    { studyId: numericStudyId },
+    { skip: Number.isNaN(numericStudyId) }
+  );
   const [applyStudy, { isLoading: applying }] = useApplyStudyMutation();
 
   if (isLoading) {
@@ -26,21 +29,33 @@ export const StudyDetailPage = () => {
   }
 
   if (isError || !study) {
-    return <EmptyState title="ìŠ¤í„°ë””ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤" description="ì‚­ì œë˜ì—ˆê±°ë‚˜ ì ‘ê·¼í•  ìˆ˜ ì—†ëŠ” ìŠ¤í„°ë””ì…ë‹ˆë‹¤." />;
+    return <EmptyState title="½ºÅÍµğ¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù" description="»èÁ¦µÇ¾ú°Å³ª Á¢±ÙÇÒ ¼ö ¾ø´Â ½ºÅÍµğÀÔ´Ï´Ù." />;
   }
 
   const onApply = async () => {
     if (!isAuthenticated) {
-      notify("info", "ë¡œê·¸ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤", "ê°€ì… ì‹ ì²­ ì „ì— ë¡œê·¸ì¸í•´ ì£¼ì„¸ìš”.");
+      notify("info", "·Î±×ÀÎÀÌ ÇÊ¿äÇÕ´Ï´Ù", "°¡ÀÔ ½ÅÃ» Àü¿¡ ·Î±×ÀÎÇØ ÁÖ¼¼¿ä.");
       navigate("/login");
       return;
     }
 
+    const openRecruitment = recruitment.find((post) => post.status === "OPEN");
+    if (!openRecruitment) {
+      notify("info", "¸ğÁı±Û ¾øÀ½", "ÇöÀç ½ÅÃ» °¡´ÉÇÑ ¸ğÁı±ÛÀÌ ¾ø½À´Ï´Ù.");
+      return;
+    }
+
+    const motivation = window.prompt("Áö¿ø µ¿±â¸¦ ÀÔ·ÂÇØ ÁÖ¼¼¿ä.", "½ºÅÍµğ¿¡ Âü¿©ÇÏ°í ½Í½À´Ï´Ù.") ?? "½ºÅÍµğ¿¡ Âü¿©ÇÏ°í ½Í½À´Ï´Ù.";
+
     try {
-      await applyStudy({ studyId: study.id }).unwrap();
-      notify("success", "ê°€ì… ì‹ ì²­ ì™„ë£Œ");
+      await applyStudy({
+        studyId: study.id,
+        recruitmentPostId: openRecruitment.id,
+        motivation
+      }).unwrap();
+      notify("success", "°¡ÀÔ ½ÅÃ» ¿Ï·á");
     } catch {
-      notify("error", "ê°€ì… ì‹ ì²­ ì‹¤íŒ¨", "ì ì‹œ í›„ ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.");
+      notify("error", "°¡ÀÔ ½ÅÃ» ½ÇÆĞ", "Àá½Ã ÈÄ ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.");
     }
   };
 
@@ -50,29 +65,30 @@ export const StudyDetailPage = () => {
         <h1 className="text-2xl font-bold text-slate-900">{study.name}</h1>
         <p className="mt-2 text-slate-700">{study.description}</p>
         <div className="mt-4 flex flex-wrap gap-3 text-sm text-slate-600">
-          <span>ê¸°ê°„: {study.period}</span>
-          <span>ì •ì›: {study.maxMembers}ëª…</span>
-          <span>ìš´ì˜ì: {study.ownerName}</span>
+          <span>Á¤¿ø: {study.maxMembers}¸í</span>
+          <span>ÇöÀç ÀÎ¿ø: {study.currentMembers}¸í</span>
+          <span>¿î¿µÀÚ: {study.ownerName ?? "-"}</span>
+          <span>»óÅÂ: {study.isFinished ? "¸ğÁı¿Ï·á" : "¸ğÁıÁß"}</span>
         </div>
         <Button className="mt-4" disabled={applying} onClick={onApply}>
-          {applying ? "ì‹ ì²­ ì¤‘..." : "ê°€ì… ì‹ ì²­"}
+          {applying ? "½ÅÃ» Áß..." : "°¡ÀÔ ½ÅÃ»"}
         </Button>
         {isAuthenticated ? (
           <div className="mt-2 flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => navigate(`/study/${study.id}/inside`)}>
-              ìŠ¤í„°ë”” ë‚´ë¶€ ì´ë™
+              ½ºÅÍµğ ³»ºÎ ÀÌµ¿
             </Button>
             <Button variant="secondary" onClick={() => navigate(`/study/${study.id}/recruitment/create`)}>
-              ëª¨ì§‘ê¸€ ì‘ì„±
+              ¸ğÁı±Û ÀÛ¼º
             </Button>
             <Button variant="secondary" onClick={() => navigate(`/study/${study.id}/manage`)}>
-              ê´€ë¦¬ í˜ì´ì§€
+              °ü¸® ÆäÀÌÁö
             </Button>
           </div>
         ) : null}
       </section>
       <section className="panel p-6">
-        <h2 className="mb-3 text-xl font-bold text-slate-900">ëª¨ì§‘ê¸€</h2>
+        <h2 className="mb-3 text-xl font-bold text-slate-900">¸ğÁı±Û</h2>
         {recruitmentLoading ? (
           <div className="space-y-2">
             <Skeleton className="h-16 w-full" />
@@ -84,14 +100,14 @@ export const StudyDetailPage = () => {
               <li key={post.id} className="rounded-xl border border-slate-200 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-semibold">{post.title}</p>
-                  <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-700">{post.status === "OPEN" ? "ëª¨ì§‘ì¤‘" : "ëª¨ì§‘ì™„ë£Œ"}</span>
+                  <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-700">{post.status === "OPEN" ? "¸ğÁıÁß" : "¸ğÁı¿Ï·á"}</span>
                 </div>
                 <p className="text-sm text-slate-600">{post.content}</p>
               </li>
             ))}
           </ul>
         ) : (
-          <EmptyState title="ë“±ë¡ëœ ëª¨ì§‘ê¸€ì´ ì—†ìŠµë‹ˆë‹¤" description="ì•„ì§ ì´ ìŠ¤í„°ë””ì˜ ëª¨ì§‘ê¸€ì´ ì‘ì„±ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤." />
+          <EmptyState title="µî·ÏµÈ ¸ğÁı±ÛÀÌ ¾ø½À´Ï´Ù" description="¾ÆÁ÷ ÀÌ ½ºÅÍµğÀÇ ¸ğÁı±ÛÀÌ ÀÛ¼ºµÇÁö ¾Ê¾Ò½À´Ï´Ù." />
         )}
       </section>
     </div>

@@ -1,4 +1,4 @@
-ï»¿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Badge } from "@/components/atoms/Badge";
 import type { Study } from "@/types/domain";
 
@@ -10,16 +10,16 @@ export const RecruitmentCard = ({ study }: RecruitmentCardProps) => (
   <article className="panel group p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
     <div className="mb-3 flex items-start justify-between gap-3">
       <h3 className="text-lg font-semibold text-slate-900">{study.name}</h3>
-      <Badge tone={study.isFinished ? "closed" : "open"}>{study.isFinished ? "ëª¨ì§‘ ì™„ë£Œ" : "ëª¨ì§‘ ì¤‘"}</Badge>
+      <Badge tone={study.isFinished ? "closed" : "open"}>{study.isFinished ? "¸ğÁı ¿Ï·á" : "¸ğÁı Áß"}</Badge>
     </div>
-    <p className="mb-4 line-clamp-2 text-sm text-slate-700">{study.description}</p>
+    <p className="mb-4 line-clamp-2 text-sm text-slate-700">{study.description || "½ºÅÍµğ ¼Ò°³°¡ ¾ÆÁ÷ µî·ÏµÇÁö ¾Ê¾Ò½À´Ï´Ù."}</p>
     <div className="mb-4 flex flex-wrap gap-2 text-xs text-slate-600">
-      <span>ê¸°ê°„: {study.period}</span>
-      <span>ì •ì›: {study.maxMembers}ëª…</span>
-      <span>ìš´ì˜ì: {study.ownerName}</span>
+      <span>Á¤¿ø: {study.maxMembers}¸í</span>
+      <span>ÇöÀç ÀÎ¿ø: {study.currentMembers}¸í</span>
+      {study.ownerName ? <span>¿î¿µÀÚ: {study.ownerName}</span> : null}
     </div>
     <Link className="text-sm font-semibold text-brand-700 underline-offset-2 hover:underline" to={`/study/${study.id}`}>
-      ìƒì„¸ ë³´ê¸°
+      »ó¼¼ º¸±â
     </Link>
   </article>
 );

@@ -43,7 +43,7 @@ public class RecruitmentController {
     );
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "모집글 생성이 완료되었습니다.", recruitmentPostResponseDto));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "������ ������ �Ϸ�Ǿ����ϴ�.", recruitmentPostResponseDto));
   }
 
   @GetMapping
@@ -51,7 +51,7 @@ public class RecruitmentController {
       @PathVariable Long studyGroupId
   ) {
     List<RecruitmentPostResponseDto> recruitmentPostResponseDtoList = recruitmentService.getRecruitmentPosts(studyGroupId);
-    return ResponseEntity.ok(ApiResponseDto.success("모집글 목록 조회에 성공했습니다.", recruitmentPostResponseDtoList));
+    return ResponseEntity.ok(ApiResponseDto.success("������ ��� ��ȸ�� �����߽��ϴ�.", recruitmentPostResponseDtoList));
   }
 
   @GetMapping("/{recruitmentPostId}")
@@ -60,7 +60,7 @@ public class RecruitmentController {
       @PathVariable Long recruitmentPostId
   ) {
     RecruitmentPostResponseDto recruitmentPostResponseDto = recruitmentService.getRecruitmentPost(studyGroupId, recruitmentPostId);
-    return ResponseEntity.ok(ApiResponseDto.success("모집글 조회에 성공했습니다.", recruitmentPostResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("������ ��ȸ�� �����߽��ϴ�.", recruitmentPostResponseDto));
   }
 
   @PatchMapping("/{recruitmentPostId}")
@@ -77,7 +77,7 @@ public class RecruitmentController {
         recruitmentPostUpdateRequestDto
     );
 
-    return ResponseEntity.ok(ApiResponseDto.success("모집글 수정이 완료되었습니다.", recruitmentPostResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("������ ������ �Ϸ�Ǿ����ϴ�.", recruitmentPostResponseDto));
   }
 
   @DeleteMapping("/{recruitmentPostId}")
@@ -87,7 +87,7 @@ public class RecruitmentController {
       @PathVariable Long recruitmentPostId
   ) {
     recruitmentService.deleteRecruitmentPost(authenticatedUserPrincipal.userId(), studyGroupId, recruitmentPostId);
-    return ResponseEntity.ok(ApiResponseDto.success("모집글 삭제가 완료되었습니다.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("������ ������ �Ϸ�Ǿ����ϴ�.", null));
   }
 
   @PostMapping("/{recruitmentPostId}/applications")
@@ -105,7 +105,7 @@ public class RecruitmentController {
     );
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "가입 신청이 완료되었습니다.", studyApplicationResponseDto));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "���� ��û�� �Ϸ�Ǿ����ϴ�.", studyApplicationResponseDto));
   }
 
   @GetMapping("/{recruitmentPostId}/applications")
@@ -120,7 +120,7 @@ public class RecruitmentController {
         recruitmentPostId
     );
 
-    return ResponseEntity.ok(ApiResponseDto.success("가입 신청 목록 조회에 성공했습니다.", studyApplicationResponseDtoList));
+    return ResponseEntity.ok(ApiResponseDto.success("���� ��û ��� ��ȸ�� �����߽��ϴ�.", studyApplicationResponseDtoList));
   }
 
   @PatchMapping("/{recruitmentPostId}/applications/{applicationId}/approve")
@@ -137,7 +137,7 @@ public class RecruitmentController {
         applicationId
     );
 
-    return ResponseEntity.ok(ApiResponseDto.success("가입 신청 승인 처리가 완료되었습니다.", studyApplicationResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("���� ��û ���� ó���� �Ϸ�Ǿ����ϴ�.", studyApplicationResponseDto));
   }
 
   @PatchMapping("/{recruitmentPostId}/applications/{applicationId}/reject")
@@ -154,6 +154,6 @@ public class RecruitmentController {
         applicationId
     );
 
-    return ResponseEntity.ok(ApiResponseDto.success("가입 신청 거절 처리가 완료되었습니다.", studyApplicationResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("���� ��û ���� ó���� �Ϸ�Ǿ����ϴ�.", studyApplicationResponseDto));
   }
 }

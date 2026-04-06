@@ -6,16 +6,16 @@ import jakarta.validation.constraints.Size;
 import java.util.Locale;
 
 public record LocalSignupRequestDto(
-    @NotBlank(message = "이메일은 필수입니다.")
-    @Email(message = "이메일 형식이 올바르지 않습니다.")
+    @NotBlank(message = "�̸����� �ʼ��Դϴ�.")
+    @Email(message = "�̸��� ������ �ùٸ��� �ʽ��ϴ�.")
     String email,
 
-    @NotBlank(message = "비밀번호는 필수입니다.")
-    @Size(min = 8, max = 50, message = "비밀번호는 8자 이상 50자 이하여야 합니다.")
+    @NotBlank(message = "��й�ȣ�� �ʼ��Դϴ�.")
+    @Size(min = 8, max = 50, message = "��й�ȣ�� 8�� �̻� 50�� ���Ͽ��� �մϴ�.")
     String password,
 
-    @NotBlank(message = "이름은 필수입니다.")
-    @Size(min = 2, max = 20, message = "이름은 2자 이상 20자 이하여야 합니다.")
+    @NotBlank(message = "�̸��� �ʼ��Դϴ�.")
+    @Size(min = 2, max = 20, message = "�̸��� 2�� �̻� 20�� ���Ͽ��� �մϴ�.")
     String name
 ) {
   public String normalizedEmail() {

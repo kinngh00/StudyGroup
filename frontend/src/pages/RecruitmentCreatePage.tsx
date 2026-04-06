@@ -10,7 +10,6 @@ import { EmptyState } from "@/components/molecules/EmptyState";
 interface RecruitmentCreateValues {
   title: string;
   content: string;
-  deadline: string;
 }
 
 export const RecruitmentCreatePage = () => {
@@ -22,36 +21,35 @@ export const RecruitmentCreatePage = () => {
   const [createRecruitment, { isLoading }] = useCreateRecruitmentMutation();
 
   if (Number.isNaN(numericStudyId)) {
-    return <EmptyState title="ì˜ëª»ëœ ì ‘ê·¼ì…ë‹ˆë‹¤" description="ìŠ¤í„°ë”” IDë¥¼ í™•ì¸í•´ ì£¼ì„¸ìš”." />;
+    return <EmptyState title="Àß¸øµÈ Á¢±ÙÀÔ´Ï´Ù" description="½ºÅÍµğ ID¸¦ È®ÀÎÇØ ÁÖ¼¼¿ä." />;
   }
 
   return (
     <div className="panel p-6">
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">ëª¨ì§‘ê¸€ ì‘ì„±</h1>
-      <p className="mb-4 text-sm text-slate-600">ì§€ì›ìë¥¼ ìœ„í•œ ëª¨ì§‘ ì¡°ê±´ê³¼ ì¼ì •ì„ ì…ë ¥í•´ ì£¼ì„¸ìš”.</p>
+      <h1 className="mb-1 text-2xl font-bold text-slate-900">¸ğÁı±Û ÀÛ¼º</h1>
+      <p className="mb-4 text-sm text-slate-600">Áö¿øÀÚ¸¦ À§ÇÑ ¸ğÁı Á¤º¸¸¦ ÀÔ·ÂÇØ ÁÖ¼¼¿ä.</p>
       <form
         className="space-y-3"
         onSubmit={handleSubmit(async (values) => {
           try {
             await createRecruitment({ studyId: numericStudyId, ...values }).unwrap();
-            notify("success", "ëª¨ì§‘ê¸€ ê²Œì‹œ ì™„ë£Œ");
+            notify("success", "¸ğÁı±Û °Ô½Ã ¿Ï·á");
             navigate(`/study/${numericStudyId}/inside`);
           } catch {
-            notify("error", "ê²Œì‹œ ì‹¤íŒ¨", "ì ì‹œ í›„ ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.");
+            notify("error", "°Ô½Ã ½ÇÆĞ", "Àá½Ã ÈÄ ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.");
           }
         })}
       >
-        <Input placeholder="ì œëª©" {...register("title")} />
-        <Input placeholder="ë‚´ìš©" {...register("content")} />
-        <Input type="date" {...register("deadline")} />
+        <Input placeholder="Á¦¸ñ" {...register("title")} />
+        <Input placeholder="³»¿ë" {...register("content")} />
         <Button disabled={isLoading} type="submit">
           {isLoading ? (
             <>
               <Spinner />
-              ê²Œì‹œ ì¤‘...
+              °Ô½Ã Áß...
             </>
           ) : (
-            "ê²Œì‹œí•˜ê¸°"
+            "°Ô½ÃÇÏ±â"
           )}
         </Button>
       </form>

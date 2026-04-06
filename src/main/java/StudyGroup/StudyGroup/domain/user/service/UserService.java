@@ -3,16 +3,25 @@ package StudyGroup.StudyGroup.domain.user.service;
 import StudyGroup.StudyGroup.domain.user.dto.request.GoogleLoginRequestDto;
 import StudyGroup.StudyGroup.domain.user.dto.request.LocalLoginRequestDto;
 import StudyGroup.StudyGroup.domain.user.dto.request.LocalSignupRequestDto;
+import StudyGroup.StudyGroup.domain.user.dto.request.LogoutRequestDto;
+import StudyGroup.StudyGroup.domain.user.dto.request.TokenReissueRequestDto;
 import StudyGroup.StudyGroup.domain.user.dto.response.LocalLoginResponseDto;
 import StudyGroup.StudyGroup.domain.user.dto.response.LocalSignupResponseDto;
+import StudyGroup.StudyGroup.domain.user.dto.response.UserMeResponseDto;
 import StudyGroup.StudyGroup.domain.user.entity.User;
 import StudyGroup.StudyGroup.domain.user.entity.UserProvider;
+import StudyGroup.StudyGroup.domain.user.entity.UserRefreshToken;
 import StudyGroup.StudyGroup.domain.user.entity.UserRole;
 import StudyGroup.StudyGroup.domain.user.exception.DuplicateEmailException;
 import StudyGroup.StudyGroup.domain.user.exception.InvalidCredentialsException;
 import StudyGroup.StudyGroup.domain.user.exception.InvalidGoogleIdTokenException;
+import StudyGroup.StudyGroup.domain.user.exception.InvalidRefreshTokenException;
+import StudyGroup.StudyGroup.domain.user.exception.UserNotFoundException;
+import StudyGroup.StudyGroup.domain.user.repository.UserRefreshTokenRepository;
 import StudyGroup.StudyGroup.domain.user.repository.UserRepository;
 import StudyGroup.StudyGroup.global.auth.JwtTokenProvider;
+import StudyGroup.StudyGroup.global.auth.entity.AccessTokenBlacklist;
+import StudyGroup.StudyGroup.global.auth.repository.AccessTokenBlacklistRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -22,12 +31,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
+
   private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final String GOOGLE_TOKEN_INFO_URL = "https://oauth2.googleapis.com/tokeninfo?id_token=";
@@ -43,6 +54,8 @@ public class UserService {
   private static final String GOOGLE_ISSUER_2 = "https://accounts.google.com";
 
   private final UserRepository userRepository;
+  private final UserRefreshTokenRepository userRefreshTokenRepository;
+  private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtTokenProvider;
 
@@ -74,6 +87,7 @@ public class UserService {
     }
   }
 
+  @Transactional
   public LocalLoginResponseDto localLogin(LocalLoginRequestDto localLoginRequestDto) {
     String normalizedEmail = localLoginRequestDto.normalizedEmail();
 
@@ -84,13 +98,7 @@ public class UserService {
       throw new InvalidCredentialsException();
     }
 
-    String accessToken = jwtTokenProvider.createToken(
-        user.getId(),
-        user.getEmail(),
-        user.getRole().name()
-    );
-
-    return new LocalLoginResponseDto(user, accessToken);
+    return issueAndSaveTokens(user);
   }
 
   @Transactional
@@ -108,13 +116,101 @@ public class UserService {
     User user = userRepository.findByEmail(email)
         .orElseGet(() -> createGoogleUser(email, displayName));
 
-    String accessToken = jwtTokenProvider.createToken(
+    return issueAndSaveTokens(user);
+  }
+
+  @Transactional
+  public LocalLoginResponseDto reissue(TokenReissueRequestDto tokenReissueRequestDto) {
+    String refreshToken = tokenReissueRequestDto.refreshToken();
+
+    if (!jwtTokenProvider.validateToken(refreshToken) || !jwtTokenProvider.isRefreshToken(refreshToken)) {
+      throw new InvalidRefreshTokenException();
+    }
+
+    UserRefreshToken userRefreshToken = userRefreshTokenRepository.findByRefreshToken(refreshToken)
+        .orElseThrow(InvalidRefreshTokenException::new);
+
+    if (userRefreshToken.getExpiredAt().isBefore(LocalDateTime.now())) {
+      throw new InvalidRefreshTokenException();
+    }
+
+    Long tokenUserId = jwtTokenProvider.getUserId(refreshToken);
+    if (!userRefreshToken.getUser().getId().equals(tokenUserId)) {
+      throw new InvalidRefreshTokenException();
+    }
+
+    User user = userRefreshToken.getUser();
+    return issueAndSaveTokens(user);
+  }
+
+  @Transactional
+  public void logout(Long requestUserId, String accessToken, LogoutRequestDto logoutRequestDto) {
+    if (accessToken == null || !jwtTokenProvider.validateToken(accessToken)) {
+      throw new InvalidCredentialsException();
+    }
+
+    Long accessTokenUserId = jwtTokenProvider.getUserId(accessToken);
+    if (!accessTokenUserId.equals(requestUserId)) {
+      throw new InvalidCredentialsException();
+    }
+
+    LocalDateTime accessTokenExpiredAt = jwtTokenProvider.getExpiredAt(accessToken);
+    accessTokenBlacklistRepository.save(AccessTokenBlacklist.builder()
+        .accessToken(accessToken)
+        .expiredAt(accessTokenExpiredAt)
+        .build());
+
+    UserRefreshToken userRefreshToken = userRefreshTokenRepository.findByUserId(requestUserId)
+        .orElseThrow(InvalidRefreshTokenException::new);
+
+    if (!userRefreshToken.getRefreshToken().equals(logoutRequestDto.refreshToken())) {
+      throw new InvalidRefreshTokenException();
+    }
+
+    userRefreshTokenRepository.delete(userRefreshToken);
+    accessTokenBlacklistRepository.deleteByExpiredAtBefore(LocalDateTime.now());
+  }
+
+  public UserMeResponseDto getMe(Long requestUserId) {
+    User user = userRepository.findById(requestUserId)
+        .orElseThrow(UserNotFoundException::new);
+
+    return UserMeResponseDto.from(user);
+  }
+
+  private LocalLoginResponseDto issueAndSaveTokens(User user) {
+    String accessToken = jwtTokenProvider.createAccessToken(
         user.getId(),
         user.getEmail(),
         user.getRole().name()
     );
 
-    return new LocalLoginResponseDto(user, accessToken);
+    String refreshToken = jwtTokenProvider.createRefreshToken(
+        user.getId(),
+        user.getEmail(),
+        user.getRole().name()
+    );
+
+    saveOrUpdateRefreshToken(user, refreshToken);
+    return new LocalLoginResponseDto(user, accessToken, refreshToken);
+  }
+
+  private void saveOrUpdateRefreshToken(User user, String refreshToken) {
+    LocalDateTime refreshTokenExpiredAt = jwtTokenProvider.getExpiredAt(refreshToken);
+
+    UserRefreshToken userRefreshToken = userRefreshTokenRepository.findByUserId(user.getId())
+        .orElse(null);
+
+    if (userRefreshToken == null) {
+      userRefreshTokenRepository.save(UserRefreshToken.builder()
+          .user(user)
+          .refreshToken(refreshToken)
+          .expiredAt(refreshTokenExpiredAt)
+          .build());
+      return;
+    }
+
+    userRefreshToken.update(refreshToken, refreshTokenExpiredAt);
   }
 
   private User createGoogleUser(String email, String name) {

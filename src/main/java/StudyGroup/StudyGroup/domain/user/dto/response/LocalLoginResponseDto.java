@@ -5,10 +5,11 @@ import StudyGroup.StudyGroup.domain.user.entity.User;
 public record LocalLoginResponseDto(
     String email,
     String name,
-    String accessToken
+    String accessToken,
+    String refreshToken
 ) {
-  public LocalLoginResponseDto(User user, String accessToken) {
-    this(user.getEmail(), user.getName(), accessToken);
+  public LocalLoginResponseDto(User user, String accessToken, String refreshToken) {
+    this(user.getEmail(), user.getName(), accessToken, refreshToken);
   }
 }
 

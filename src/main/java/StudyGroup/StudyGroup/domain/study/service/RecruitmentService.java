@@ -21,10 +21,12 @@ import StudyGroup.StudyGroup.domain.study.exception.StudyApplicationNotFoundExce
 import StudyGroup.StudyGroup.domain.study.exception.StudyApplicationNotPendingException;
 import StudyGroup.StudyGroup.domain.study.exception.StudyCapacityExceededException;
 import StudyGroup.StudyGroup.domain.study.exception.StudyGroupNotFoundException;
+import StudyGroup.StudyGroup.domain.study.exception.StudyUserBlacklistedException;
 import StudyGroup.StudyGroup.domain.study.repository.RecruitmentPostRepository;
 import StudyGroup.StudyGroup.domain.study.repository.StudyApplicationRepository;
 import StudyGroup.StudyGroup.domain.study.repository.StudyGroupRepository;
 import StudyGroup.StudyGroup.domain.study.repository.StudyMemberRepository;
+import StudyGroup.StudyGroup.domain.study.repository.StudyRestrictionRepository;
 import StudyGroup.StudyGroup.domain.user.entity.User;
 import StudyGroup.StudyGroup.domain.user.repository.UserRepository;
 import java.util.EnumSet;
@@ -45,6 +47,7 @@ public class RecruitmentService {
   private final StudyApplicationRepository studyApplicationRepository;
   private final UserRepository userRepository;
   private final StudyPermissionService studyPermissionService;
+  private final StudyRestrictionRepository studyRestrictionRepository;
 
   @Transactional
   public RecruitmentPostResponseDto createRecruitmentPost(
@@ -53,7 +56,7 @@ public class RecruitmentService {
       RecruitmentPostCreateRequestDto recruitmentPostCreateRequestDto
   ) {
     StudyGroup studyGroup = getStudyGroup(studyGroupId);
-    studyPermissionService.validateManagerPermission(studyGroupId, requestUserId);
+    studyPermissionService.validateRecruitmentWritePermission(studyGroupId, requestUserId);
     User requestUser = getUser(requestUserId);
 
     RecruitmentPost recruitmentPost = RecruitmentPost.builder()
@@ -129,6 +132,10 @@ public class RecruitmentService {
     RecruitmentPost recruitmentPost = getRecruitmentPostEntity(studyGroupId, recruitmentPostId);
     User requestUser = getUser(requestUserId);
 
+    if (studyRestrictionRepository.existsByStudyGroupIdAndUserIdAndBlacklistedTrue(studyGroupId, requestUserId)) {
+      throw new StudyUserBlacklistedException();
+    }
+
     if (recruitmentPost.getStatus() != RecruitmentPostStatus.OPEN) {
       throw new RecruitmentNotOpenException();
     }
@@ -175,7 +182,7 @@ public class RecruitmentService {
   }
 
   public List<StudyApplicationResponseDto> getApplications(Long requestUserId, Long studyGroupId, Long recruitmentPostId) {
-    studyPermissionService.validateManagerPermission(studyGroupId, requestUserId);
+    studyPermissionService.validateRecruitmentApprovePermission(studyGroupId, requestUserId);
     getRecruitmentPostEntity(studyGroupId, recruitmentPostId);
 
     return studyApplicationRepository.findByRecruitmentPostIdOrderByCreatedAtDesc(recruitmentPostId).stream()
@@ -190,7 +197,7 @@ public class RecruitmentService {
       Long recruitmentPostId,
       Long applicationId
   ) {
-    studyPermissionService.validateManagerPermission(studyGroupId, requestUserId);
+    studyPermissionService.validateRecruitmentApprovePermission(studyGroupId, requestUserId);
     StudyApplication studyApplication = getStudyApplication(studyGroupId, recruitmentPostId, applicationId);
     StudyGroup lockedStudyGroup = getStudyGroupWithLock(studyGroupId);
 
@@ -241,7 +248,7 @@ public class RecruitmentService {
       Long recruitmentPostId,
       Long applicationId
   ) {
-    studyPermissionService.validateManagerPermission(studyGroupId, requestUserId);
+    studyPermissionService.validateRecruitmentApprovePermission(studyGroupId, requestUserId);
     StudyApplication studyApplication = getStudyApplication(studyGroupId, recruitmentPostId, applicationId);
 
     if (studyApplication.getStatus() != ApplicationStatus.PENDING) {

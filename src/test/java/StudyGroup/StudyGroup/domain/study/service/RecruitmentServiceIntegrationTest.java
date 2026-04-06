@@ -11,9 +11,11 @@ import StudyGroup.StudyGroup.domain.study.entity.StudyGroup;
 import StudyGroup.StudyGroup.domain.study.entity.StudyMember;
 import StudyGroup.StudyGroup.domain.study.entity.StudyMemberRole;
 import StudyGroup.StudyGroup.domain.study.entity.StudyStatus;
+import StudyGroup.StudyGroup.domain.study.entity.StudyAdminPermission;
 import StudyGroup.StudyGroup.domain.study.exception.StudyApplicationDuplicatedException;
 import StudyGroup.StudyGroup.domain.study.exception.StudyCapacityExceededException;
 import StudyGroup.StudyGroup.domain.study.repository.StudyApplicationRepository;
+import StudyGroup.StudyGroup.domain.study.repository.StudyAdminPermissionRepository;
 import StudyGroup.StudyGroup.domain.study.repository.StudyGroupRepository;
 import StudyGroup.StudyGroup.domain.study.repository.StudyMemberRepository;
 import StudyGroup.StudyGroup.domain.user.entity.User;
@@ -43,6 +45,9 @@ class RecruitmentServiceIntegrationTest {
 
   @Autowired
   private StudyApplicationRepository studyApplicationRepository;
+
+  @Autowired
+  private StudyAdminPermissionRepository studyAdminPermissionRepository;
 
   @Test
   void duplicateApplication_isBlocked() {
@@ -83,6 +88,7 @@ class RecruitmentServiceIntegrationTest {
     StudyGroup studyGroup = createStudyGroup("Spring Study", 5);
     addStudyMember(studyGroup, ownerUser, StudyMemberRole.OWNER);
     addStudyMember(studyGroup, adminUser, StudyMemberRole.ADMIN);
+    grantAdminApprovePermission(studyGroup, adminUser);
 
     RecruitmentPostResponseDto recruitmentPostResponseDto = recruitmentService.createRecruitmentPost(
         ownerUser.getId(),
@@ -222,5 +228,18 @@ class RecruitmentServiceIntegrationTest {
         .build();
 
     studyMemberRepository.save(studyMember);
+  }
+
+  private void grantAdminApprovePermission(StudyGroup studyGroup, User adminUser) {
+    StudyAdminPermission studyAdminPermission = StudyAdminPermission.builder()
+        .studyGroup(studyGroup)
+        .user(adminUser)
+        .recruitmentWrite(true)
+        .recruitmentApprove(true)
+        .memberManage(false)
+        .scheduleManage(false)
+        .noticeManage(false)
+        .build();
+    studyAdminPermissionRepository.save(studyAdminPermission);
   }
 }

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import StudyGroup.StudyGroup.global.auth.repository.AccessTokenBlacklistRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
 
   @Override
   protected void doFilterInternal(
@@ -26,7 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     String token = resolveToken(request);
 
-    if (token != null && jwtTokenProvider.validateToken(token)) {
+    if (token != null
+        && jwtTokenProvider.validateToken(token)
+        && !accessTokenBlacklistRepository.existsByAccessToken(token)) {
       Authentication authentication = jwtTokenProvider.getAuthentication(token);
       SecurityContextHolder.getContext().setAuthentication(authentication);
     }

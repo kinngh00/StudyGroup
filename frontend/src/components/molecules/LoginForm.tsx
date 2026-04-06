@@ -5,8 +5,7 @@ import { Input } from "@/components/atoms/Input";
 import { Button } from "@/components/atoms/Button";
 import { Spinner } from "@/components/atoms/Spinner";
 
-const normalizeEmail = (value: string) =>
-  value.normalize("NFKC").replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
+const normalizeEmail = (value: string) => value.normalize("NFKC").replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
 
 const loginSchema = z.object({
   email: z.preprocess(
@@ -16,10 +15,7 @@ const loginSchema = z.object({
       .min(1, "이메일은 필수입니다.")
       .email("유효한 이메일을 입력해 주세요.")
   ),
-  password: z
-    .string({ required_error: "비밀번호는 필수입니다." })
-    .min(1, "비밀번호는 필수입니다.")
-    .min(8, "비밀번호는 8자 이상이어야 합니다.")
+  password: z.string({ required_error: "비밀번호는 필수입니다." }).min(1, "비밀번호는 필수입니다.").min(8, "비밀번호는 8자 이상이어야 합니다.")
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
@@ -54,9 +50,6 @@ export const LoginForm = ({ onSubmit, loading }: LoginFormProps) => {
           "로그인"
         )}
       </Button>
-      <a className="block text-center text-sm font-semibold text-brand-700" href={`${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080"}/api/auth/login/google`}>
-        구글로 계속하기
-      </a>
     </form>
   );
 };

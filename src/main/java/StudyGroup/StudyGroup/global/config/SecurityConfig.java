@@ -32,7 +32,12 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers("/api/auth/local/signup", "/api/auth/local/login", "/api/auth/google/login").permitAll()
+            .requestMatchers(
+                "/api/auth/local/signup",
+                "/api/auth/local/login",
+                "/api/auth/local/reissue",
+                "/api/auth/google/login"
+            ).permitAll()
             .anyRequest().authenticated()
         )
         .formLogin(AbstractHttpConfigurer::disable)

@@ -14,7 +14,7 @@ export const StudyRoleGate = () => {
     if (data?.role) {
       dispatch(setUserRoleInCurrentStudy(data.role));
     } else {
-      dispatch(setUserRoleInCurrentStudy("None"));
+      dispatch(setUserRoleInCurrentStudy("NONE"));
     }
   }, [data, dispatch]);
 
