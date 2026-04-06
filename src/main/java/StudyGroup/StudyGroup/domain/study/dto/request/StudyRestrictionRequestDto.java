@@ -3,7 +3,7 @@ package StudyGroup.StudyGroup.domain.study.dto.request;
 import jakarta.validation.constraints.Size;
 
 public record StudyRestrictionRequestDto(
-    @Size(max = 500, message = "������ 500�� ���Ͽ��� �մϴ�.")
+    @Size(max = 500, message = "Reason must be 500 characters or less.")
     String reason
 ) {
   public String normalizedReason() {

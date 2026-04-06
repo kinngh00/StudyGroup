@@ -40,7 +40,7 @@ public class StudyMemberManagementController {
         targetUserId,
         studyMemberKickRequestDto
     );
-    return ResponseEntity.ok(ApiResponseDto.success("���͵� ��� ���� �Ϸ�Ǿ����ϴ�.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("Study member kicked.", null));
   }
 
   @PostMapping("/members/{targetUserId}/block")
@@ -56,7 +56,7 @@ public class StudyMemberManagementController {
         targetUserId,
         studyRestrictionRequestDto
     );
-    return ResponseEntity.ok(ApiResponseDto.success("���͵� ��� Ȱ�� ������ �Ϸ�Ǿ����ϴ�.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("Study member blocked.", null));
   }
 
   @DeleteMapping("/members/{targetUserId}/block")
@@ -66,7 +66,7 @@ public class StudyMemberManagementController {
       @PathVariable Long targetUserId
   ) {
     studyMemberManagementService.unblockMember(authenticatedUserPrincipal.userId(), studyGroupId, targetUserId);
-    return ResponseEntity.ok(ApiResponseDto.success("���͵� ��� Ȱ�� ���� ������ �Ϸ�Ǿ����ϴ�.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("Study member unblocked.", null));
   }
 
   @PostMapping("/blacklist/{targetUserId}")
@@ -82,7 +82,7 @@ public class StudyMemberManagementController {
         targetUserId,
         studyRestrictionRequestDto
     );
-    return ResponseEntity.ok(ApiResponseDto.success("���͵� �������Ʈ ����� �Ϸ�Ǿ����ϴ�.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("Study member added to blacklist.", null));
   }
 
   @DeleteMapping("/blacklist/{targetUserId}")
@@ -92,7 +92,7 @@ public class StudyMemberManagementController {
       @PathVariable Long targetUserId
   ) {
     studyMemberManagementService.removeBlacklist(authenticatedUserPrincipal.userId(), studyGroupId, targetUserId);
-    return ResponseEntity.ok(ApiResponseDto.success("���͵� �������Ʈ ������ �Ϸ�Ǿ����ϴ�.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("Study member removed from blacklist.", null));
   }
 
   @GetMapping("/blacklist")
@@ -104,6 +104,6 @@ public class StudyMemberManagementController {
         authenticatedUserPrincipal.userId(),
         studyGroupId
     );
-    return ResponseEntity.ok(ApiResponseDto.success("���͵� �������Ʈ ��ȸ�� �����߽��ϴ�.", studyRestrictionResponseDtoList));
+    return ResponseEntity.ok(ApiResponseDto.success("Study blacklist retrieved.", studyRestrictionResponseDtoList));
   }
 }

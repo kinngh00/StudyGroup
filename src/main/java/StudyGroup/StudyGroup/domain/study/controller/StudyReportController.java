@@ -38,7 +38,7 @@ public class StudyReportController {
         studyReportCreateRequestDto
     );
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "신고가 접수되었습니다.", studyReportResponseDto));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "Study report created.", studyReportResponseDto));
   }
 
   @GetMapping
@@ -50,7 +50,7 @@ public class StudyReportController {
         authenticatedUserPrincipal.userId(),
         studyGroupId
     );
-    return ResponseEntity.ok(ApiResponseDto.success("신고 목록 조회에 성공했습니다.", studyReportResponseDtoList));
+    return ResponseEntity.ok(ApiResponseDto.success("Study report list retrieved.", studyReportResponseDtoList));
   }
 
   @PatchMapping("/{studyReportId}/resolve")
@@ -64,7 +64,6 @@ public class StudyReportController {
         studyGroupId,
         studyReportId
     );
-    return ResponseEntity.ok(ApiResponseDto.success("신고가 처리 완료되었습니다.", studyReportResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Study report resolved.", studyReportResponseDto));
   }
 }
-

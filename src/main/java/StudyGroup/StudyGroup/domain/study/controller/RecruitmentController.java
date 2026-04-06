@@ -43,7 +43,7 @@ public class RecruitmentController {
     );
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "������ ������ �Ϸ�Ǿ����ϴ�.", recruitmentPostResponseDto));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "Recruitment post created.", recruitmentPostResponseDto));
   }
 
   @GetMapping
@@ -51,7 +51,7 @@ public class RecruitmentController {
       @PathVariable Long studyGroupId
   ) {
     List<RecruitmentPostResponseDto> recruitmentPostResponseDtoList = recruitmentService.getRecruitmentPosts(studyGroupId);
-    return ResponseEntity.ok(ApiResponseDto.success("������ ��� ��ȸ�� �����߽��ϴ�.", recruitmentPostResponseDtoList));
+    return ResponseEntity.ok(ApiResponseDto.success("Recruitment post list retrieved.", recruitmentPostResponseDtoList));
   }
 
   @GetMapping("/{recruitmentPostId}")
@@ -60,7 +60,7 @@ public class RecruitmentController {
       @PathVariable Long recruitmentPostId
   ) {
     RecruitmentPostResponseDto recruitmentPostResponseDto = recruitmentService.getRecruitmentPost(studyGroupId, recruitmentPostId);
-    return ResponseEntity.ok(ApiResponseDto.success("������ ��ȸ�� �����߽��ϴ�.", recruitmentPostResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Recruitment post retrieved.", recruitmentPostResponseDto));
   }
 
   @PatchMapping("/{recruitmentPostId}")
@@ -77,7 +77,7 @@ public class RecruitmentController {
         recruitmentPostUpdateRequestDto
     );
 
-    return ResponseEntity.ok(ApiResponseDto.success("������ ������ �Ϸ�Ǿ����ϴ�.", recruitmentPostResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Recruitment post updated.", recruitmentPostResponseDto));
   }
 
   @DeleteMapping("/{recruitmentPostId}")
@@ -87,7 +87,7 @@ public class RecruitmentController {
       @PathVariable Long recruitmentPostId
   ) {
     recruitmentService.deleteRecruitmentPost(authenticatedUserPrincipal.userId(), studyGroupId, recruitmentPostId);
-    return ResponseEntity.ok(ApiResponseDto.success("������ ������ �Ϸ�Ǿ����ϴ�.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("Recruitment post deleted.", null));
   }
 
   @PostMapping("/{recruitmentPostId}/applications")
@@ -105,7 +105,7 @@ public class RecruitmentController {
     );
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "���� ��û�� �Ϸ�Ǿ����ϴ�.", studyApplicationResponseDto));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "Study application created.", studyApplicationResponseDto));
   }
 
   @GetMapping("/{recruitmentPostId}/applications")
@@ -120,7 +120,7 @@ public class RecruitmentController {
         recruitmentPostId
     );
 
-    return ResponseEntity.ok(ApiResponseDto.success("���� ��û ��� ��ȸ�� �����߽��ϴ�.", studyApplicationResponseDtoList));
+    return ResponseEntity.ok(ApiResponseDto.success("Study application list retrieved.", studyApplicationResponseDtoList));
   }
 
   @PatchMapping("/{recruitmentPostId}/applications/{applicationId}/approve")
@@ -137,7 +137,7 @@ public class RecruitmentController {
         applicationId
     );
 
-    return ResponseEntity.ok(ApiResponseDto.success("���� ��û ���� ó���� �Ϸ�Ǿ����ϴ�.", studyApplicationResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Study application approved.", studyApplicationResponseDto));
   }
 
   @PatchMapping("/{recruitmentPostId}/applications/{applicationId}/reject")
@@ -154,6 +154,6 @@ public class RecruitmentController {
         applicationId
     );
 
-    return ResponseEntity.ok(ApiResponseDto.success("���� ��û ���� ó���� �Ϸ�Ǿ����ϴ�.", studyApplicationResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Study application rejected.", studyApplicationResponseDto));
   }
 }

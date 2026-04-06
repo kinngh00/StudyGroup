@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Size;
 
 public record StudyMemberKickRequestDto(
     boolean addToBlacklist,
-    @Size(max = 500, message = "������ 500�� ���Ͽ��� �մϴ�.")
+    @Size(max = 500, message = "Reason must be 500 characters or less.")
     String reason
 ) {
   public String normalizedReason() {

@@ -40,7 +40,7 @@ public class StudyNoticeController {
         studyNoticeCreateRequestDto
     );
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "스터디 공지가 등록되었습니다.", studyNoticeResponseDto));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "Study notice created.", studyNoticeResponseDto));
   }
 
   @GetMapping
@@ -52,7 +52,7 @@ public class StudyNoticeController {
         authenticatedUserPrincipal.userId(),
         studyGroupId
     );
-    return ResponseEntity.ok(ApiResponseDto.success("스터디 공지 목록 조회에 성공했습니다.", studyNoticeResponseDtoList));
+    return ResponseEntity.ok(ApiResponseDto.success("Study notice list retrieved.", studyNoticeResponseDtoList));
   }
 
   @GetMapping("/{studyNoticeId}")
@@ -66,7 +66,7 @@ public class StudyNoticeController {
         studyGroupId,
         studyNoticeId
     );
-    return ResponseEntity.ok(ApiResponseDto.success("스터디 공지 조회에 성공했습니다.", studyNoticeResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Study notice retrieved.", studyNoticeResponseDto));
   }
 
   @PatchMapping("/{studyNoticeId}")
@@ -82,7 +82,7 @@ public class StudyNoticeController {
         studyNoticeId,
         studyNoticeUpdateRequestDto
     );
-    return ResponseEntity.ok(ApiResponseDto.success("스터디 공지가 수정되었습니다.", studyNoticeResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Study notice updated.", studyNoticeResponseDto));
   }
 
   @DeleteMapping("/{studyNoticeId}")
@@ -92,7 +92,6 @@ public class StudyNoticeController {
       @PathVariable Long studyNoticeId
   ) {
     studyNoticeService.deleteNotice(authenticatedUserPrincipal.userId(), studyGroupId, studyNoticeId);
-    return ResponseEntity.ok(ApiResponseDto.success("스터디 공지가 삭제되었습니다.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("Study notice deleted.", null));
   }
 }
-

@@ -31,6 +31,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -47,7 +48,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserService {
 
-  private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+  private static final Duration GOOGLE_HTTP_TIMEOUT = Duration.ofSeconds(3);
+  private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+      .connectTimeout(GOOGLE_HTTP_TIMEOUT)
+      .build();
+
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final String GOOGLE_TOKEN_INFO_URL = "https://oauth2.googleapis.com/tokeninfo?id_token=";
   private static final String GOOGLE_ISSUER_1 = "accounts.google.com";
@@ -235,6 +240,7 @@ public class UserService {
       String encodedIdToken = URLEncoder.encode(idToken, StandardCharsets.UTF_8);
       HttpRequest httpRequest = HttpRequest.newBuilder()
           .uri(URI.create(GOOGLE_TOKEN_INFO_URL + encodedIdToken))
+          .timeout(GOOGLE_HTTP_TIMEOUT)
           .GET()
           .build();
 

@@ -5,12 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record RecruitmentPostUpdateRequestDto(
-    @NotBlank(message = "������ ������ �ʼ��Դϴ�.")
-    @Size(min = 2, max = 100, message = "������ ������ 2�� �̻� 100�� ���Ͽ��� �մϴ�.")
+    @NotBlank(message = "Recruitment title is required.")
+    @Size(min = 2, max = 100, message = "Recruitment title must be between 2 and 100 characters.")
     String title,
 
-    @NotBlank(message = "������ ������ �ʼ��Դϴ�.")
-    @Size(min = 2, max = 2000, message = "������ ������ 2�� �̻� 2000�� ���Ͽ��� �մϴ�.")
+    @NotBlank(message = "Recruitment content is required.")
+    @Size(min = 2, max = 2000, message = "Recruitment content must be between 2 and 2000 characters.")
     String content,
 
     RecruitmentPostStatus status

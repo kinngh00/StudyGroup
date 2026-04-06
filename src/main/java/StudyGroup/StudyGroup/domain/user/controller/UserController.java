@@ -37,7 +37,7 @@ public class UserController {
   ) {
     LocalSignupResponseDto localSignupResponseDto = userService.localSignup(localSignupRequestDto);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "ȸ�������� �Ϸ�Ǿ����ϴ�.", localSignupResponseDto));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "Signup completed.", localSignupResponseDto));
   }
 
   @PostMapping("/local/login")
@@ -45,7 +45,7 @@ public class UserController {
       @RequestBody @Valid LocalLoginRequestDto localLoginRequestDto
   ) {
     LocalLoginResponseDto localLoginResponseDto = userService.localLogin(localLoginRequestDto);
-    return ResponseEntity.ok(ApiResponseDto.success("�α��ο� �����߽��ϴ�.", localLoginResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Login completed.", localLoginResponseDto));
   }
 
   @PostMapping("/google/login")
@@ -53,7 +53,7 @@ public class UserController {
       @RequestBody @Valid GoogleLoginRequestDto googleLoginRequestDto
   ) {
     LocalLoginResponseDto localLoginResponseDto = userService.googleLogin(googleLoginRequestDto);
-    return ResponseEntity.ok(ApiResponseDto.success("���� �α��ο� �����߽��ϴ�.", localLoginResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Google login completed.", localLoginResponseDto));
   }
 
   @PostMapping("/local/reissue")
@@ -61,7 +61,7 @@ public class UserController {
       @RequestBody @Valid TokenReissueRequestDto tokenReissueRequestDto
   ) {
     LocalLoginResponseDto localLoginResponseDto = userService.reissue(tokenReissueRequestDto);
-    return ResponseEntity.ok(ApiResponseDto.success("��ū ��߱��� �Ϸ�Ǿ����ϴ�.", localLoginResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Token reissued.", localLoginResponseDto));
   }
 
   @PostMapping("/logout")
@@ -72,7 +72,7 @@ public class UserController {
   ) {
     String accessToken = extractBearerToken(authorizationHeader);
     userService.logout(authenticatedUserPrincipal.userId(), accessToken, logoutRequestDto);
-    return ResponseEntity.ok(ApiResponseDto.success("�α׾ƿ��� �Ϸ�Ǿ����ϴ�.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("Logout completed.", null));
   }
 
   @GetMapping("/me")
@@ -80,7 +80,7 @@ public class UserController {
       @AuthenticationPrincipal AuthenticatedUserPrincipal authenticatedUserPrincipal
   ) {
     UserMeResponseDto userMeResponseDto = userService.getMe(authenticatedUserPrincipal.userId());
-    return ResponseEntity.ok(ApiResponseDto.success("�� ���� ��ȸ�� �����߽��ϴ�.", userMeResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("User profile retrieved.", userMeResponseDto));
   }
 
   private String extractBearerToken(String authorizationHeader) {

@@ -40,7 +40,7 @@ public class StudyScheduleController {
         studyScheduleCreateRequestDto
     );
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "���͵� ���� ������ �Ϸ�Ǿ����ϴ�.", studyScheduleResponseDto));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "Study schedule created.", studyScheduleResponseDto));
   }
 
   @GetMapping
@@ -52,7 +52,7 @@ public class StudyScheduleController {
         authenticatedUserPrincipal.userId(),
         studyGroupId
     );
-    return ResponseEntity.ok(ApiResponseDto.success("���͵� ���� ��� ��ȸ�� �����߽��ϴ�.", studyScheduleResponseDtoList));
+    return ResponseEntity.ok(ApiResponseDto.success("Study schedule list retrieved.", studyScheduleResponseDtoList));
   }
 
   @PatchMapping("/{studyScheduleId}")
@@ -68,7 +68,7 @@ public class StudyScheduleController {
         studyScheduleId,
         studyScheduleUpdateRequestDto
     );
-    return ResponseEntity.ok(ApiResponseDto.success("���͵� ���� ������ �Ϸ�Ǿ����ϴ�.", studyScheduleResponseDto));
+    return ResponseEntity.ok(ApiResponseDto.success("Study schedule updated.", studyScheduleResponseDto));
   }
 
   @DeleteMapping("/{studyScheduleId}")
@@ -78,6 +78,6 @@ public class StudyScheduleController {
       @PathVariable Long studyScheduleId
   ) {
     studyScheduleService.deleteSchedule(authenticatedUserPrincipal.userId(), studyGroupId, studyScheduleId);
-    return ResponseEntity.ok(ApiResponseDto.success("���͵� ���� ������ �Ϸ�Ǿ����ϴ�.", null));
+    return ResponseEntity.ok(ApiResponseDto.success("Study schedule deleted.", null));
   }
 }

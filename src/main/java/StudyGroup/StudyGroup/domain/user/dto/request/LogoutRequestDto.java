@@ -3,8 +3,7 @@ package StudyGroup.StudyGroup.domain.user.dto.request;
 import jakarta.validation.constraints.NotBlank;
 
 public record LogoutRequestDto(
-    @NotBlank(message = "리프레시 토큰은 필수입니다.")
+    @NotBlank(message = "Refresh token is required.")
     String refreshToken
 ) {
 }
-
