@@ -9,7 +9,7 @@ interface RequireRoleProps {
 export const RequireRole = ({ allowedRoles }: RequireRoleProps) => {
   const role = useAppSelector((state) => state.study.userRoleInCurrentStudy);
   if (!allowedRoles.includes(role)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate replace to="/dashboard" />;
   }
   return <Outlet />;
 };

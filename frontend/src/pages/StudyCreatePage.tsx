@@ -1,4 +1,4 @@
-О╩©import { useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/atoms/Input";
 import { Button } from "@/components/atoms/Button";
@@ -9,8 +9,7 @@ import { useToast } from "@/components/organisms/ToastProvider";
 interface StudyCreateValues {
   name: string;
   description: string;
-  period: string;
-  maxMembers: number;
+  maxMemberCount: number;
 }
 
 export const StudyCreatePage = () => {
@@ -22,30 +21,29 @@ export const StudyCreatePage = () => {
   const onSubmit = async (values: StudyCreateValues) => {
     try {
       await createStudy(values).unwrap();
-      notify("success", "Л┼╓М└╟К■■ Л┐²Л└╠ Л≥└Кё▄", "Л┼╓М└╟К■■ Й╥╦Кё╧Л²╢ Л┐²Л└╠К░≤Л≈┬Л┼╣К▀┬К▀╓.");
+      notify("success", "╫╨ем╣П ╩Щ╪╨ ©о╥А", "╫╨ем╣П ╠в╥Люл ╩Щ╪╨╣г╬З╫ю╢о╢ы.");
       navigate("/dashboard");
     } catch {
-      notify("error", "Л┐²Л└╠ Л▀╓М▄╗", "Л·┘К═╔Й╟▓Л²└ М≥∙Л²╦М∙≤ЙЁ═ К▀╓Л▀° Л▀°К▐└М∙╢ Лё╪Л└╦Л ■.");
+      notify("error", "╩Щ╪╨ ╫гфп", "ют╥б╟╙ю╩ х╝юнго╟М ╢ы╫ц ╫ц╣╣гь аж╪╪©Д.");
     }
   };
 
   return (
     <div className="panel p-6">
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">Л┐┬ Л┼╓М└╟К■■ Й╥╦Кё╧ К╖▄К⌠╓Й╦╟</h1>
-      <p className="mb-4 text-sm text-slate-600">Й╦╟КЁ╦ Л═∙КЁ╢К╔╪ Л·┘К═╔М∙≤К╘╢ Л┐²Л└╠ М⌡└ Л┬≤Л═∙М∙═ Л┬≤ Л·┬Л┼╣К▀┬К▀╓.</p>
+      <h1 className="mb-1 text-2xl font-bold text-slate-900">╩У ╫╨ем╣П ╠в╥Л ╦╦╣И╠Б</h1>
+      <p className="mb-4 text-sm text-slate-600">╠Б╨╩ а╓╨╦╦╕ ют╥бго╦И ╩Щ╪╨ хд ╪Жа╓гр ╪Ж юж╫ю╢о╢ы.</p>
       <form className="grid gap-3 md:grid-cols-2" onSubmit={handleSubmit(onSubmit)}>
-        <Input placeholder="Л┼╓М└╟К■■ Л²╢К╕└" {...register("name")} />
-        <Input placeholder="Й╦╟Й╟└ (Л≤┬: 2026.03-2026.06)" {...register("period")} />
-        <Input className="md:col-span-2" placeholder="Л├▄Й╟°" {...register("description")} />
-        <Input type="number" placeholder="Л╣°К▄─ Л²╦Л⌡░" {...register("maxMembers", { valueAsNumber: true })} />
+        <Input placeholder="╫╨ем╣П юл╦╖" {...register("name")} />
+        <Input type="number" placeholder="цж╢К юн©Ь" {...register("maxMemberCount", { valueAsNumber: true })} />
+        <Input className="md:col-span-2" placeholder="╪р╟Ё" {...register("description")} />
         <Button className="md:col-span-2" disabled={isLoading} type="submit">
           {isLoading ? (
             <>
               <Spinner />
-              Л┐²Л└╠ Л╓▒...
+              ╩Щ╪╨ аъ...
             </>
           ) : (
-            "Л┼╓М└╟К■■ Л┐²Л└╠"
+            "╫╨ем╣П ╩Щ╪╨"
           )}
         </Button>
       </form>

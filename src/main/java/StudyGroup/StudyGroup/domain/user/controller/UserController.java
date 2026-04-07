@@ -3,16 +3,24 @@ package StudyGroup.StudyGroup.domain.user.controller;
 import StudyGroup.StudyGroup.domain.user.dto.request.GoogleLoginRequestDto;
 import StudyGroup.StudyGroup.domain.user.dto.request.LocalLoginRequestDto;
 import StudyGroup.StudyGroup.domain.user.dto.request.LocalSignupRequestDto;
+import StudyGroup.StudyGroup.domain.user.dto.request.LogoutRequestDto;
+import StudyGroup.StudyGroup.domain.user.dto.request.TokenReissueRequestDto;
 import StudyGroup.StudyGroup.domain.user.dto.response.LocalLoginResponseDto;
 import StudyGroup.StudyGroup.domain.user.dto.response.LocalSignupResponseDto;
+import StudyGroup.StudyGroup.domain.user.dto.response.UserMeResponseDto;
+import StudyGroup.StudyGroup.domain.user.exception.InvalidCredentialsException;
 import StudyGroup.StudyGroup.domain.user.service.UserService;
+import StudyGroup.StudyGroup.global.auth.AuthenticatedUserPrincipal;
 import StudyGroup.StudyGroup.global.response.ApiResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,30 +28,65 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class UserController {
+
   private final UserService userService;
 
   @PostMapping("/local/signup")
   public ResponseEntity<ApiResponseDto<LocalSignupResponseDto>> localSignup(
       @RequestBody @Valid LocalSignupRequestDto localSignupRequestDto
   ) {
-    LocalSignupResponseDto response = userService.localSignup(localSignupRequestDto);
+    LocalSignupResponseDto localSignupResponseDto = userService.localSignup(localSignupRequestDto);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "회원가입이 완료되었습니다.", response));
+        .body(ApiResponseDto.success(HttpStatus.CREATED.value(), "Signup completed.", localSignupResponseDto));
   }
 
   @PostMapping("/local/login")
   public ResponseEntity<ApiResponseDto<LocalLoginResponseDto>> localLogin(
       @RequestBody @Valid LocalLoginRequestDto localLoginRequestDto
   ) {
-    LocalLoginResponseDto response = userService.localLogin(localLoginRequestDto);
-    return ResponseEntity.ok(ApiResponseDto.success("로그인에 성공했습니다.", response));
+    LocalLoginResponseDto localLoginResponseDto = userService.localLogin(localLoginRequestDto);
+    return ResponseEntity.ok(ApiResponseDto.success("Login completed.", localLoginResponseDto));
   }
 
   @PostMapping("/google/login")
   public ResponseEntity<ApiResponseDto<LocalLoginResponseDto>> googleLogin(
       @RequestBody @Valid GoogleLoginRequestDto googleLoginRequestDto
   ) {
-    LocalLoginResponseDto response = userService.googleLogin(googleLoginRequestDto);
-    return ResponseEntity.ok(ApiResponseDto.success("구글 로그인에 성공했습니다.", response));
+    LocalLoginResponseDto localLoginResponseDto = userService.googleLogin(googleLoginRequestDto);
+    return ResponseEntity.ok(ApiResponseDto.success("Google login completed.", localLoginResponseDto));
+  }
+
+  @PostMapping("/local/reissue")
+  public ResponseEntity<ApiResponseDto<LocalLoginResponseDto>> reissue(
+      @RequestBody @Valid TokenReissueRequestDto tokenReissueRequestDto
+  ) {
+    LocalLoginResponseDto localLoginResponseDto = userService.reissue(tokenReissueRequestDto);
+    return ResponseEntity.ok(ApiResponseDto.success("Token reissued.", localLoginResponseDto));
+  }
+
+  @PostMapping("/logout")
+  public ResponseEntity<ApiResponseDto<Void>> logout(
+      @AuthenticationPrincipal AuthenticatedUserPrincipal authenticatedUserPrincipal,
+      @RequestHeader("Authorization") String authorizationHeader,
+      @RequestBody @Valid LogoutRequestDto logoutRequestDto
+  ) {
+    String accessToken = extractBearerToken(authorizationHeader);
+    userService.logout(authenticatedUserPrincipal.userId(), accessToken, logoutRequestDto);
+    return ResponseEntity.ok(ApiResponseDto.success("Logout completed.", null));
+  }
+
+  @GetMapping("/me")
+  public ResponseEntity<ApiResponseDto<UserMeResponseDto>> me(
+      @AuthenticationPrincipal AuthenticatedUserPrincipal authenticatedUserPrincipal
+  ) {
+    UserMeResponseDto userMeResponseDto = userService.getMe(authenticatedUserPrincipal.userId());
+    return ResponseEntity.ok(ApiResponseDto.success("User profile retrieved.", userMeResponseDto));
+  }
+
+  private String extractBearerToken(String authorizationHeader) {
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      throw new InvalidCredentialsException();
+    }
+    return authorizationHeader.substring(7);
   }
 }

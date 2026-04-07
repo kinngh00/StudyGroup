@@ -1,4 +1,4 @@
-ï»¿import { Badge } from "@/components/atoms/Badge";
+import { Badge } from "@/components/atoms/Badge";
 import type { StudyMember } from "@/types/domain";
 
 interface MemberListItemProps {
@@ -6,10 +6,10 @@ interface MemberListItemProps {
 }
 
 const roleLabel: Record<StudyMember["role"], string> = {
-  Owner: "ìš´ì˜ìž",
-  Admin: "ê´€ë¦¬ìž",
-  Member: "íšŒì›",
-  None: "ë¹„íšŒì›"
+  OWNER: "¿î¿µÀÚ",
+  ADMIN: "°ü¸®ÀÚ",
+  MEMBER: "È¸¿ø",
+  NONE: "ºñÈ¸¿ø"
 };
 
 export const MemberListItem = ({ member }: MemberListItemProps) => (
@@ -17,7 +17,7 @@ export const MemberListItem = ({ member }: MemberListItemProps) => (
     <div>
       <p className="font-medium">{member.name}</p>
       {member.permissions && member.permissions.length > 0 ? (
-        <p className="mt-1 text-xs text-slate-500">ê¶Œí•œ: {member.permissions.join(", ")}</p>
+        <p className="mt-1 text-xs text-slate-500">±ÇÇÑ: {member.permissions.join(", ")}</p>
       ) : null}
     </div>
     <Badge>{roleLabel[member.role]}</Badge>

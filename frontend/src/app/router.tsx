@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
             children: [
               { path: "inside", element: <StudyInsidePage /> },
               {
-                element: <RequireRole allowedRoles={["Owner", "Admin"]} />,
+                element: <RequireRole allowedRoles={["OWNER", "ADMIN"]} />,
                 children: [
                   { path: "recruitment/create", element: <RecruitmentCreatePage /> },
                   { path: "manage", element: <StudyManagePage /> }

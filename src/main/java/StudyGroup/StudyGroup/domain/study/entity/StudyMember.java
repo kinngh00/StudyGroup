@@ -53,4 +53,8 @@ public class StudyMember {
   @Column(nullable = false, updatable = false)
   @CreationTimestamp
   private LocalDateTime joinedAt;
+
+  public void changeRole(StudyMemberRole role) {
+    this.role = role;
+  }
 }

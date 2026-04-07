@@ -1,4 +1,4 @@
-ï»¿import { useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   useCreateNoticeMutation,
@@ -29,7 +29,7 @@ export const StudyInsidePage = () => {
   const { studyId } = useParams();
   const numericStudyId = Number(studyId);
   const role = useAppSelector((state) => state.study.userRoleInCurrentStudy);
-  const canManage = role === "Owner" || role === "Admin";
+  const canManage = role === "OWNER" || role === "ADMIN";
   const { notify } = useToast();
 
   const { data: schedules = [], isLoading: schedulesLoading } = useGetSchedulesQuery(numericStudyId);
@@ -52,14 +52,13 @@ export const StudyInsidePage = () => {
   const [editRecruitmentId, setEditRecruitmentId] = useState<number | null>(null);
   const [recruitmentTitle, setRecruitmentTitle] = useState("");
   const [recruitmentContent, setRecruitmentContent] = useState("");
-  const [recruitmentDeadline, setRecruitmentDeadline] = useState("");
   const [recruitmentStatus, setRecruitmentStatus] = useState<"OPEN" | "CLOSED">("OPEN");
 
   const [noticeTitle, setNoticeTitle] = useState("");
   const [noticeContent, setNoticeContent] = useState("");
 
   if (Number.isNaN(numericStudyId)) {
-    return <EmptyState title="ì˜ëª»ëœ ì ‘ê·¼ì…ë‹ˆë‹¤" description="ìŠ¤í„°ë”” IDë¥¼ í™•ì¸í•´ ì£¼ì„¸ìš”." />;
+    return <EmptyState title="Àß¸øµÈ Á¢±ÙÀÔ´Ï´Ù" description="½ºÅÍµğ ID¸¦ È®ÀÎÇØ ÁÖ¼¼¿ä." />;
   }
 
   const startScheduleEdit = (schedule: StudySchedule) => {
@@ -73,23 +72,22 @@ export const StudyInsidePage = () => {
     setEditRecruitmentId(recruitment.id);
     setRecruitmentTitle(recruitment.title);
     setRecruitmentContent(recruitment.content);
-    setRecruitmentDeadline(recruitment.deadline.slice(0, 10));
     setRecruitmentStatus(recruitment.status);
   };
 
   const createScheduleItem = async () => {
     if (!title || !dateTime) {
-      notify("info", "ì…ë ¥ê°’ì´ í•„ìš”í•©ë‹ˆë‹¤", "ì œëª©ê³¼ ì¼ì‹œë¥¼ ëª¨ë‘ ì…ë ¥í•´ ì£¼ì„¸ìš”.");
+      notify("info", "ÀÔ·Â°ªÀÌ ÇÊ¿äÇÕ´Ï´Ù", "Á¦¸ñ°ú ÀÏ½Ã¸¦ ¸ğµÎ ÀÔ·ÂÇØ ÁÖ¼¼¿ä.");
       return;
     }
 
     try {
       if (editingScheduleId) {
         await updateSchedule({ studyId: numericStudyId, scheduleId: editingScheduleId, title, dateTime, description }).unwrap();
-        notify("success", "ì¼ì • ìˆ˜ì • ì™„ë£Œ");
+        notify("success", "ÀÏÁ¤ ¼öÁ¤ ¿Ï·á");
       } else {
         await createSchedule({ studyId: numericStudyId, title, dateTime, description }).unwrap();
-        notify("success", "ì¼ì • ìƒì„± ì™„ë£Œ");
+        notify("success", "ÀÏÁ¤ »ı¼º ¿Ï·á");
       }
 
       setEditingScheduleId(null);
@@ -97,22 +95,22 @@ export const StudyInsidePage = () => {
       setDateTime("");
       setDescription("");
     } catch {
-      notify("error", "ìš”ì²­ ì‹¤íŒ¨", "ì¼ì • ì²˜ë¦¬ ì¤‘ ë¬¸ì œê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤.");
+      notify("error", "¿äÃ» ½ÇÆĞ", "ÀÏÁ¤ Ã³¸® Áß ¹®Á¦°¡ ¹ß»ıÇß½À´Ï´Ù.");
     }
   };
 
   const removeScheduleItem = async (scheduleId: number) => {
     try {
       await deleteSchedule({ studyId: numericStudyId, scheduleId }).unwrap();
-      notify("success", "ì¼ì • ì‚­ì œ ì™„ë£Œ");
+      notify("success", "ÀÏÁ¤ »èÁ¦ ¿Ï·á");
     } catch {
-      notify("error", "ì‚­ì œ ì‹¤íŒ¨", "ì¼ì •ì„ ì‚­ì œí•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.");
+      notify("error", "»èÁ¦ ½ÇÆĞ", "ÀÏÁ¤À» »èÁ¦ÇÏÁö ¸øÇß½À´Ï´Ù.");
     }
   };
 
   const submitRecruitmentEdit = async () => {
-    if (!editRecruitmentId || !recruitmentTitle || !recruitmentContent || !recruitmentDeadline) {
-      notify("info", "ì…ë ¥ê°’ì´ í•„ìš”í•©ë‹ˆë‹¤", "ëª¨ì§‘ê¸€ í•„ìˆ˜ê°’ì„ ëª¨ë‘ ì…ë ¥í•´ ì£¼ì„¸ìš”.");
+    if (!editRecruitmentId || !recruitmentTitle || !recruitmentContent) {
+      notify("info", "ÀÔ·Â°ªÀÌ ÇÊ¿äÇÕ´Ï´Ù", "¸ğÁı±Û ÇÊ¼ö°ªÀ» ¸ğµÎ ÀÔ·ÂÇØ ÁÖ¼¼¿ä.");
       return;
     }
 
@@ -122,42 +120,40 @@ export const StudyInsidePage = () => {
         recruitmentId: editRecruitmentId,
         title: recruitmentTitle,
         content: recruitmentContent,
-        deadline: recruitmentDeadline,
         status: recruitmentStatus
       }).unwrap();
       setEditRecruitmentId(null);
       setRecruitmentTitle("");
       setRecruitmentContent("");
-      setRecruitmentDeadline("");
       setRecruitmentStatus("OPEN");
-      notify("success", "ëª¨ì§‘ê¸€ ìˆ˜ì • ì™„ë£Œ");
+      notify("success", "¸ğÁı±Û ¼öÁ¤ ¿Ï·á");
     } catch {
-      notify("error", "ìˆ˜ì • ì‹¤íŒ¨", "ëª¨ì§‘ê¸€ì„ ìˆ˜ì •í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.");
+      notify("error", "¼öÁ¤ ½ÇÆĞ", "¸ğÁı±ÛÀ» ¼öÁ¤ÇÏÁö ¸øÇß½À´Ï´Ù.");
     }
   };
 
   const removeRecruitment = async (recruitmentId: number) => {
     try {
       await deleteRecruitment({ studyId: numericStudyId, recruitmentId }).unwrap();
-      notify("success", "ëª¨ì§‘ê¸€ ì‚­ì œ ì™„ë£Œ");
+      notify("success", "¸ğÁı±Û »èÁ¦ ¿Ï·á");
     } catch {
-      notify("error", "ì‚­ì œ ì‹¤íŒ¨", "ëª¨ì§‘ê¸€ì„ ì‚­ì œí•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.");
+      notify("error", "»èÁ¦ ½ÇÆĞ", "¸ğÁı±ÛÀ» »èÁ¦ÇÏÁö ¸øÇß½À´Ï´Ù.");
     }
   };
 
   const submitNotice = async () => {
     if (!noticeTitle || !noticeContent) {
-      notify("info", "ì…ë ¥ê°’ì´ í•„ìš”í•©ë‹ˆë‹¤", "ê³µì§€ ì œëª©ê³¼ ë‚´ìš©ì„ ì…ë ¥í•´ ì£¼ì„¸ìš”.");
+      notify("info", "ÀÔ·Â°ªÀÌ ÇÊ¿äÇÕ´Ï´Ù", "°øÁö Á¦¸ñ°ú ³»¿ëÀ» ÀÔ·ÂÇØ ÁÖ¼¼¿ä.");
       return;
     }
 
     try {
-      await createNotice({ studyId: numericStudyId, title: noticeTitle, content: noticeContent }).unwrap();
+      await createNotice({ studyId: numericStudyId, title: noticeTitle, content: noticeContent, pinned: false }).unwrap();
       setNoticeTitle("");
       setNoticeContent("");
-      notify("success", "ê³µì§€ ë“±ë¡ ì™„ë£Œ");
+      notify("success", "°øÁö µî·Ï ¿Ï·á");
     } catch {
-      notify("error", "ë“±ë¡ ì‹¤íŒ¨", "ê³µì§€ë¥¼ ë“±ë¡í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.");
+      notify("error", "µî·Ï ½ÇÆĞ", "°øÁö¸¦ µî·ÏÇÏÁö ¸øÇß½À´Ï´Ù.");
     }
   };
 
@@ -166,29 +162,29 @@ export const StudyInsidePage = () => {
       <div className="panel flex gap-2 overflow-x-auto p-2">
         {(["dashboard", "schedules", "members", "recruitments", "notices"] as Tab[]).map((item) => (
           <Button key={item} onClick={() => setTab(item)} variant={tab === item ? "primary" : "ghost"}>
-            {item === "dashboard" ? "ëŒ€ì‹œë³´ë“œ" : item === "schedules" ? "ì¼ì •" : item === "members" ? "íšŒì›" : item === "recruitments" ? "ëª¨ì§‘ê¸€" : "ê³µì§€"}
+            {item === "dashboard" ? "´ë½Ãº¸µå" : item === "schedules" ? "ÀÏÁ¤" : item === "members" ? "È¸¿ø" : item === "recruitments" ? "¸ğÁı±Û" : "°øÁö"}
           </Button>
         ))}
       </div>
 
       {tab === "dashboard" ? (
         <section className="panel p-6">
-          <h2 className="text-xl font-bold text-slate-900">ìŠ¤í„°ë”” ëŒ€ì‹œë³´ë“œ</h2>
-          <p className="mt-2 text-sm text-slate-600">ë‹¤ìŒ ì¼ì •: {schedules[0] ? new Date(schedules[0].dateTime).toLocaleString() : "ë¯¸ì •"}</p>
-          <p className="mt-2 text-sm text-slate-600">ìµœê·¼ ê³µì§€: {notices[0] ? notices[0].title : "ë“±ë¡ëœ ê³µì§€ê°€ ì—†ìŠµë‹ˆë‹¤."}</p>
+          <h2 className="text-xl font-bold text-slate-900">½ºÅÍµğ ´ë½Ãº¸µå</h2>
+          <p className="mt-2 text-sm text-slate-600">´ÙÀ½ ÀÏÁ¤: {schedules[0] ? new Date(schedules[0].dateTime).toLocaleString() : "¹ÌÁ¤"}</p>
+          <p className="mt-2 text-sm text-slate-600">ÃÖ±Ù °øÁö: {notices[0] ? notices[0].title : "µî·ÏµÈ °øÁö°¡ ¾ø½À´Ï´Ù."}</p>
         </section>
       ) : null}
 
       {tab === "schedules" ? (
         <section className="panel p-6">
-          <h2 className="mb-3 text-xl font-bold text-slate-900">ì¼ì • ê´€ë¦¬</h2>
+          <h2 className="mb-3 text-xl font-bold text-slate-900">ÀÏÁ¤ °ü¸®</h2>
           {canManage ? (
             <div className="mb-3 grid gap-2 md:grid-cols-[1fr_240px_auto]">
-              <Input className="md:col-span-3" placeholder="ì¼ì • ì œëª©" value={title} onChange={(e) => setTitle(e.target.value)} />
-              <Input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} />
-              <Input placeholder="ì„¤ëª… (ì„ íƒ)" value={description} onChange={(e) => setDescription(e.target.value)} />
+              <Input className="md:col-span-3" placeholder="ÀÏÁ¤ Á¦¸ñ" value={title} onChange={(event) => setTitle(event.target.value)} />
+              <Input type="datetime-local" value={dateTime} onChange={(event) => setDateTime(event.target.value)} />
+              <Input placeholder="¼³¸í (¼±ÅÃ)" value={description} onChange={(event) => setDescription(event.target.value)} />
               <Button disabled={creatingSchedule || updatingSchedule} onClick={createScheduleItem}>
-                {editingScheduleId ? "ìˆ˜ì • ì €ì¥" : "ìƒì„±"}
+                {editingScheduleId ? "¼öÁ¤ ÀúÀå" : "»ı¼º"}
               </Button>
             </div>
           ) : null}
@@ -205,10 +201,10 @@ export const StudyInsidePage = () => {
                   {canManage ? (
                     <div className="mt-2 flex gap-2">
                       <Button variant="secondary" onClick={() => startScheduleEdit(schedule)}>
-                        ìˆ˜ì •
+                        ¼öÁ¤
                       </Button>
                       <Button disabled={deletingSchedule} variant="warning" onClick={() => removeScheduleItem(schedule.id)}>
-                        ì‚­ì œ
+                        »èÁ¦
                       </Button>
                     </div>
                   ) : null}
@@ -216,14 +212,14 @@ export const StudyInsidePage = () => {
               ))}
             </ul>
           ) : (
-            <EmptyState title="ë“±ë¡ëœ ì¼ì •ì´ ì—†ìŠµë‹ˆë‹¤" description="ì²« ì¼ì •ì„ ë“±ë¡í•´ ìŠ¤í„°ë”” ì¼ì •ì„ ê³µìœ í•´ ë³´ì„¸ìš”." />
+            <EmptyState title="µî·ÏµÈ ÀÏÁ¤ÀÌ ¾ø½À´Ï´Ù" description="Ã¹ ÀÏÁ¤À» µî·ÏÇØ ½ºÅÍµğ ÀÏÁ¤À» °øÀ¯ÇØ º¸¼¼¿ä." />
           )}
         </section>
       ) : null}
 
       {tab === "members" ? (
         <section className="panel p-6">
-          <h2 className="mb-3 text-xl font-bold text-slate-900">íšŒì› ëª©ë¡</h2>
+          <h2 className="mb-3 text-xl font-bold text-slate-900">È¸¿ø ¸ñ·Ï</h2>
           {membersLoading ? (
             <div className="space-y-2">
               <Skeleton className="h-14 w-full" />
@@ -238,31 +234,30 @@ export const StudyInsidePage = () => {
               ))}
             </ul>
           ) : (
-            <EmptyState title="íšŒì›ì´ ì—†ìŠµë‹ˆë‹¤" description="ê°€ì…ì´ ì™„ë£Œëœ íšŒì›ì´ ì—¬ê¸°ì— í‘œì‹œë©ë‹ˆë‹¤." />
+            <EmptyState title="È¸¿øÀÌ ¾ø½À´Ï´Ù" description="°¡ÀÔÀÌ ¿Ï·áµÈ È¸¿øÀÌ ¿©±â¿¡ Ç¥½ÃµË´Ï´Ù." />
           )}
         </section>
       ) : null}
 
       {tab === "recruitments" ? (
         <section className="panel p-6">
-          <h2 className="mb-3 text-xl font-bold text-slate-900">ëª¨ì§‘ê¸€</h2>
+          <h2 className="mb-3 text-xl font-bold text-slate-900">¸ğÁı±Û</h2>
           {canManage && editRecruitmentId ? (
             <div className="mb-4 space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="text-sm font-semibold text-slate-700">ëª¨ì§‘ê¸€ ìˆ˜ì •</p>
-              <Input placeholder="ì œëª©" value={recruitmentTitle} onChange={(e) => setRecruitmentTitle(e.target.value)} />
-              <Input placeholder="ë‚´ìš©" value={recruitmentContent} onChange={(e) => setRecruitmentContent(e.target.value)} />
-              <Input type="date" value={recruitmentDeadline} onChange={(e) => setRecruitmentDeadline(e.target.value)} />
+              <p className="text-sm font-semibold text-slate-700">¸ğÁı±Û ¼öÁ¤</p>
+              <Input placeholder="Á¦¸ñ" value={recruitmentTitle} onChange={(event) => setRecruitmentTitle(event.target.value)} />
+              <Input placeholder="³»¿ë" value={recruitmentContent} onChange={(event) => setRecruitmentContent(event.target.value)} />
               <div className="flex gap-2">
                 <Button variant={recruitmentStatus === "OPEN" ? "primary" : "secondary"} onClick={() => setRecruitmentStatus("OPEN")}>
-                  ëª¨ì§‘ì¤‘
+                  ¸ğÁıÁß
                 </Button>
                 <Button variant={recruitmentStatus === "CLOSED" ? "primary" : "secondary"} onClick={() => setRecruitmentStatus("CLOSED")}>
-                  ëª¨ì§‘ì™„ë£Œ
+                  ¸ğÁı¿Ï·á
                 </Button>
               </div>
               <div className="flex gap-2">
                 <Button disabled={updatingRecruitment} onClick={submitRecruitmentEdit}>
-                  ì €ì¥
+                  ÀúÀå
                 </Button>
                 <Button
                   variant="ghost"
@@ -270,11 +265,10 @@ export const StudyInsidePage = () => {
                     setEditRecruitmentId(null);
                     setRecruitmentTitle("");
                     setRecruitmentContent("");
-                    setRecruitmentDeadline("");
                     setRecruitmentStatus("OPEN");
                   }}
                 >
-                  ì·¨ì†Œ
+                  Ãë¼Ò
                 </Button>
               </div>
             </div>
@@ -290,17 +284,16 @@ export const StudyInsidePage = () => {
                 <li className="rounded-xl border border-slate-200 p-3" key={recruitment.id}>
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-semibold">{recruitment.title}</p>
-                    <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-700">{recruitment.status === "OPEN" ? "ëª¨ì§‘ì¤‘" : "ëª¨ì§‘ì™„ë£Œ"}</span>
+                    <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-700">{recruitment.status === "OPEN" ? "¸ğÁıÁß" : "¸ğÁı¿Ï·á"}</span>
                   </div>
                   <p className="text-sm text-slate-700">{recruitment.content}</p>
-                  <p className="mt-1 text-xs text-slate-500">ë§ˆê°ì¼: {new Date(recruitment.deadline).toLocaleDateString()}</p>
                   {canManage ? (
                     <div className="mt-2 flex gap-2">
                       <Button variant="secondary" onClick={() => startRecruitmentEdit(recruitment)}>
-                        ìˆ˜ì •
+                        ¼öÁ¤
                       </Button>
                       <Button disabled={deletingRecruitment} variant="warning" onClick={() => removeRecruitment(recruitment.id)}>
-                        ì‚­ì œ
+                        »èÁ¦
                       </Button>
                     </div>
                   ) : null}
@@ -308,20 +301,20 @@ export const StudyInsidePage = () => {
               ))}
             </ul>
           ) : (
-            <EmptyState title="ëª¨ì§‘ê¸€ì´ ì—†ìŠµë‹ˆë‹¤" description="ì•„ì§ ëª¨ì§‘ ì •ë³´ê°€ ë“±ë¡ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤." />
+            <EmptyState title="¸ğÁı±ÛÀÌ ¾ø½À´Ï´Ù" description="¾ÆÁ÷ ¸ğÁı Á¤º¸°¡ µî·ÏµÇÁö ¾Ê¾Ò½À´Ï´Ù." />
           )}
         </section>
       ) : null}
 
       {tab === "notices" ? (
         <section className="panel p-6">
-          <h2 className="mb-3 text-xl font-bold text-slate-900">ê³µì§€ì‚¬í•­</h2>
+          <h2 className="mb-3 text-xl font-bold text-slate-900">°øÁö»çÇ×</h2>
           {canManage ? (
             <div className="mb-4 space-y-2">
-              <Input placeholder="ê³µì§€ ì œëª©" value={noticeTitle} onChange={(e) => setNoticeTitle(e.target.value)} />
-              <Input placeholder="ê³µì§€ ë‚´ìš©" value={noticeContent} onChange={(e) => setNoticeContent(e.target.value)} />
+              <Input placeholder="°øÁö Á¦¸ñ" value={noticeTitle} onChange={(event) => setNoticeTitle(event.target.value)} />
+              <Input placeholder="°øÁö ³»¿ë" value={noticeContent} onChange={(event) => setNoticeContent(event.target.value)} />
               <Button disabled={creatingNotice} onClick={submitNotice}>
-                ê³µì§€ ë“±ë¡
+                °øÁö µî·Ï
               </Button>
             </div>
           ) : null}
@@ -337,13 +330,13 @@ export const StudyInsidePage = () => {
                   <p className="font-semibold">{notice.title}</p>
                   <p className="mt-1 text-sm text-slate-700">{notice.content}</p>
                   <p className="mt-1 text-xs text-slate-500">
-                    ì‘ì„±ì: {notice.authorName} Â· {new Date(notice.createdAt).toLocaleString()}
+                    ÀÛ¼ºÀÚ: {notice.authorName} ¡¤ {new Date(notice.createdAt).toLocaleString()}
                   </p>
                 </li>
               ))}
             </ul>
           ) : (
-            <EmptyState title="ë“±ë¡ëœ ê³µì§€ê°€ ì—†ìŠµë‹ˆë‹¤" description="ìš´ì˜ì ë˜ëŠ” ê´€ë¦¬ìê°€ ê³µì§€ë¥¼ ë“±ë¡í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤." />
+            <EmptyState title="µî·ÏµÈ °øÁö°¡ ¾ø½À´Ï´Ù" description="¿î¿µÀÚ ¶Ç´Â °ü¸®ÀÚ°¡ °øÁö¸¦ µî·ÏÇÒ ¼ö ÀÖ½À´Ï´Ù." />
           )}
         </section>
       ) : null}

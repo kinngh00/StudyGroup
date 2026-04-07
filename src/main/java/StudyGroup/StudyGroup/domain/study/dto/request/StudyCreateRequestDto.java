@@ -6,20 +6,23 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record StudyCreateRequestDto(
-    @NotBlank(message = "스터디 이름은 필수입니다.")
-    @Size(min = 2, max = 100, message = "스터디 이름은 2자 이상 100자 이하입니다.")
+    @NotBlank(message = "{validation.study.name.required}")
+    @Size(min = 2, max = 100, message = "{validation.study.name.length}")
     String name,
 
-    @NotBlank(message = "스터디 설명은 필수입니다.")
-    @Size(min = 2, max = 1000, message = "스터디 설명은 2자 이상 1000자 이하입니다.")
+    @NotBlank(message = "{validation.study.description.required}")
+    @Size(min = 2, max = 1000, message = "{validation.study.description.length}")
     String description,
 
-    @Min(value = 2, message = "최대 인원은 2명 이상이어야 합니다.")
-    @Max(value = 100, message = "최대 인원은 100명 이하여야 합니다.")
+    @Min(value = 2, message = "{validation.study.max-member-count.min}")
+    @Max(value = 100, message = "{validation.study.max-member-count.max}")
     Integer maxMemberCount
 ) {
-  public StudyCreateRequestDto {
-    name = name == null ? null : name.trim();
-    description = description == null ? null : description.trim();
+  public String normalizedName() {
+    return name.trim();
+  }
+
+  public String normalizedDescription() {
+    return description.trim();
   }
 }

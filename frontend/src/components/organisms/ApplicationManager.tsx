@@ -1,5 +1,11 @@
-ï»¿import { Button } from "@/components/atoms/Button";
-import { useGetApplicationsQuery, useProcessApplicationMutation } from "@/api/baseApi";
+import { useMemo, useState } from "react";
+import { Button } from "@/components/atoms/Button";
+import {
+  useApproveApplicationMutation,
+  useGetApplicationsQuery,
+  useGetRecruitmentsQuery,
+  useRejectApplicationMutation
+} from "@/api/baseApi";
 import { useToast } from "@/components/organisms/ToastProvider";
 import { EmptyState } from "@/components/molecules/EmptyState";
 import { Skeleton } from "@/components/atoms/Skeleton";
@@ -10,26 +16,91 @@ interface ApplicationManagerProps {
 
 export const ApplicationManager = ({ studyId }: ApplicationManagerProps) => {
   const { notify } = useToast();
-  const { data: applications = [], isLoading } = useGetApplicationsQuery(studyId);
-  const [processApplication, { isLoading: processing }] = useProcessApplicationMutation();
+  const { data: recruitments = [], isLoading: recruitmentsLoading } = useGetRecruitmentsQuery({ studyId });
+
+  const firstRecruitmentId = useMemo(() => {
+    const openRecruitment = recruitments.find((recruitment) => recruitment.status === "OPEN");
+    return openRecruitment?.id ?? recruitments[0]?.id;
+  }, [recruitments]);
+
+  const [selectedRecruitmentId, setSelectedRecruitmentId] = useState<number | undefined>(undefined);
+  const recruitmentPostId = selectedRecruitmentId ?? firstRecruitmentId;
+
+  const { data: applications = [], isLoading } = useGetApplicationsQuery(
+    { studyId, recruitmentPostId: recruitmentPostId ?? 0 },
+    { skip: !recruitmentPostId }
+  );
+
+  const [approveApplication, { isLoading: approving }] = useApproveApplicationMutation();
+  const [rejectApplication, { isLoading: rejecting }] = useRejectApplicationMutation();
+
   const statusLabel = {
-    PENDING: "ëŒ€ê¸°",
-    APPROVED: "ìŠ¹ì¸",
-    REJECTED: "ê±°ì ˆ"
+    PENDING: "´ë±â",
+    APPROVED: "½ÂÀÎ",
+    REJECTED: "°ÅÀı"
   } as const;
 
-  const handleProcess = async (appId: number, approved: boolean) => {
+  const handleApprove = async (applicationId: number) => {
+    if (!recruitmentPostId) {
+      return;
+    }
     try {
-      await processApplication({ appId, approved }).unwrap();
-      notify("success", approved ? "ìŠ¹ì¸ ì™„ë£Œ" : "ê±°ì ˆ ì™„ë£Œ", "ê°€ì… ì‹ ì²­ ìƒíƒœê°€ ì—…ë°ì´íŠ¸ë˜ì—ˆìŠµë‹ˆë‹¤.");
+      await approveApplication({ studyId, recruitmentPostId, applicationId }).unwrap();
+      notify("success", "½ÂÀÎ ¿Ï·á", "°¡ÀÔ ½ÅÃ» »óÅÂ°¡ ¾÷µ¥ÀÌÆ®µÇ¾ú½À´Ï´Ù.");
     } catch {
-      notify("error", "ìš”ì²­ ì‹¤íŒ¨", "ê°€ì… ì‹ ì²­ ìƒíƒœë¥¼ ë³€ê²½í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.");
+      notify("error", "¿äÃ» ½ÇÆĞ", "°¡ÀÔ ½ÅÃ» »óÅÂ¸¦ º¯°æÇÏÁö ¸øÇß½À´Ï´Ù.");
     }
   };
 
+  const handleReject = async (applicationId: number) => {
+    if (!recruitmentPostId) {
+      return;
+    }
+    try {
+      await rejectApplication({ studyId, recruitmentPostId, applicationId }).unwrap();
+      notify("success", "°ÅÀı ¿Ï·á", "°¡ÀÔ ½ÅÃ» »óÅÂ°¡ ¾÷µ¥ÀÌÆ®µÇ¾ú½À´Ï´Ù.");
+    } catch {
+      notify("error", "¿äÃ» ½ÇÆĞ", "°¡ÀÔ ½ÅÃ» »óÅÂ¸¦ º¯°æÇÏÁö ¸øÇß½À´Ï´Ù.");
+    }
+  };
+
+  if (recruitmentsLoading) {
+    return (
+      <div className="panel p-4">
+        <h3 className="mb-3 text-lg font-bold text-slate-900">°¡ÀÔ ½ÅÃ» ´ë±â ¸ñ·Ï</h3>
+        <div className="space-y-2">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (recruitments.length === 0) {
+    return (
+      <div className="panel p-4">
+        <h3 className="mb-3 text-lg font-bold text-slate-900">°¡ÀÔ ½ÅÃ» ´ë±â ¸ñ·Ï</h3>
+        <EmptyState title="¸ğÁı±ÛÀÌ ¾ø½À´Ï´Ù" description="°¡ÀÔ ½ÅÃ»À» ¹ŞÀ¸·Á¸é ¸ğÁı±ÛÀ» ¸ÕÀú ÀÛ¼ºÇØ ÁÖ¼¼¿ä." />
+      </div>
+    );
+  }
+
   return (
     <div className="panel p-4">
-      <h3 className="mb-3 text-lg font-bold text-slate-900">ê°€ì… ì‹ ì²­ ëŒ€ê¸° ëª©ë¡</h3>
+      <h3 className="mb-3 text-lg font-bold text-slate-900">°¡ÀÔ ½ÅÃ» ´ë±â ¸ñ·Ï</h3>
+
+      <div className="mb-3 flex flex-wrap gap-2">
+        {recruitments.map((recruitment) => (
+          <Button
+            key={recruitment.id}
+            onClick={() => setSelectedRecruitmentId(recruitment.id)}
+            variant={(selectedRecruitmentId ?? firstRecruitmentId) === recruitment.id ? "primary" : "secondary"}
+          >
+            {recruitment.title}
+          </Button>
+        ))}
+      </div>
+
       {isLoading ? (
         <div className="space-y-2">
           <Skeleton className="h-16 w-full" />
@@ -37,25 +108,28 @@ export const ApplicationManager = ({ studyId }: ApplicationManagerProps) => {
         </div>
       ) : applications.length > 0 ? (
         <ul className="space-y-2">
-          {applications.map((app) => (
-            <li className="flex items-center justify-between rounded-xl border border-slate-200 p-3" key={app.id}>
+          {applications.map((application) => (
+            <li className="flex items-center justify-between rounded-xl border border-slate-200 p-3" key={application.id}>
               <div>
-                <p className="font-semibold">{app.applicantName}</p>
-                <p className="text-xs text-slate-500">ìƒíƒœ: {statusLabel[app.status]}</p>
+                <p className="font-semibold">{application.applicantName}</p>
+                <p className="text-xs text-slate-500">»óÅÂ: {statusLabel[application.status]}</p>
+                <p className="text-xs text-slate-500">Áö¿øµ¿±â: {application.motivation}</p>
               </div>
-              <div className="flex gap-2">
-                <Button disabled={processing} onClick={() => handleProcess(app.id, true)}>
-                  ìŠ¹ì¸
-                </Button>
-                <Button disabled={processing} variant="warning" onClick={() => handleProcess(app.id, false)}>
-                  ê±°ì ˆ
-                </Button>
-              </div>
+              {application.status === "PENDING" ? (
+                <div className="flex gap-2">
+                  <Button disabled={approving || rejecting} onClick={() => handleApprove(application.id)}>
+                    ½ÂÀÎ
+                  </Button>
+                  <Button disabled={approving || rejecting} variant="warning" onClick={() => handleReject(application.id)}>
+                    °ÅÀı
+                  </Button>
+                </div>
+              ) : null}
             </li>
           ))}
         </ul>
       ) : (
-        <EmptyState title="ëŒ€ê¸° ì¤‘ì¸ ìš”ì²­ì´ ì—†ìŠµë‹ˆë‹¤" description="ëª¨ë“  ê°€ì… ìš”ì²­ì„ ì²˜ë¦¬í–ˆìŠµë‹ˆë‹¤." />
+        <EmptyState title="´ë±â ÁßÀÎ ¿äÃ»ÀÌ ¾ø½À´Ï´Ù" description="¸ğµç °¡ÀÔ ¿äÃ»À» Ã³¸®Çß½À´Ï´Ù." />
       )}
     </div>
   );

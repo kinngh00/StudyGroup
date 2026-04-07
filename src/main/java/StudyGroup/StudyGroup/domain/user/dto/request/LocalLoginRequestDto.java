@@ -6,15 +6,15 @@ import jakarta.validation.constraints.Size;
 import java.util.Locale;
 
 public record LocalLoginRequestDto(
-    @NotBlank(message = "이메일은 필수입니다.")
-    @Email(message = "이메일 형식이 올바르지 않습니다.")
+    @NotBlank(message = "{validation.email.required}")
+    @Email(message = "{validation.email.invalid}")
     String email,
 
-    @NotBlank(message = "비밀번호는 필수입니다.")
-    @Size(min = 8, max = 50, message = "비밀번호는 8자 이상 50자 이하로 입력해야 합니다.")
+    @NotBlank(message = "{validation.password.required}")
+    @Size(min = 8, max = 50, message = "{validation.password.length}")
     String password
 ) {
-  public LocalLoginRequestDto {
-    email = email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+  public String normalizedEmail() {
+    return email.trim().toLowerCase(Locale.ROOT);
   }
 }

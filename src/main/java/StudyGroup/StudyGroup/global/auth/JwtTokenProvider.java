@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +25,9 @@ public class JwtTokenProvider {
   @Value("${jwt.access-token-expiration}")
   private long accessTokenExpiration;
 
+  @Value("${jwt.refresh-token-expiration}")
+  private long refreshTokenExpiration;
+
   private SecretKey secretKey;
 
   @PostConstruct
@@ -31,6 +36,10 @@ public class JwtTokenProvider {
   }
 
   public String createToken(Long userId, String email, String role) {
+    return createAccessToken(userId, email, role);
+  }
+
+  public String createAccessToken(Long userId, String email, String role) {
     Date now = new Date();
     Date expiredAt = new Date(now.getTime() + accessTokenExpiration);
 
@@ -38,6 +47,21 @@ public class JwtTokenProvider {
         .subject(String.valueOf(userId))
         .claim("email", email)
         .claim("role", role)
+        .issuedAt(now)
+        .expiration(expiredAt)
+        .signWith(secretKey)
+        .compact();
+  }
+
+  public String createRefreshToken(Long userId, String email, String role) {
+    Date now = new Date();
+    Date expiredAt = new Date(now.getTime() + refreshTokenExpiration);
+
+    return Jwts.builder()
+        .subject(String.valueOf(userId))
+        .claim("email", email)
+        .claim("role", role)
+        .claim("tokenType", "REFRESH")
         .issuedAt(now)
         .expiration(expiredAt)
         .signWith(secretKey)
@@ -63,10 +87,35 @@ public class JwtTokenProvider {
         .parseSignedClaims(token)
         .getPayload();
 
-    String userId = claims.getSubject();
+    Long userId = Long.parseLong(claims.getSubject());
+    String email = claims.get("email", String.class);
     String role = claims.get("role", String.class);
+    AuthenticatedUserPrincipal authenticatedUserPrincipal = new AuthenticatedUserPrincipal(userId, email, role);
     List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-    return new UsernamePasswordAuthenticationToken(userId, token, authorities);
+    return new UsernamePasswordAuthenticationToken(authenticatedUserPrincipal, token, authorities);
+  }
+
+  public boolean isRefreshToken(String token) {
+    Claims claims = parseClaims(token);
+    String tokenType = claims.get("tokenType", String.class);
+    return "REFRESH".equals(tokenType);
+  }
+
+  public Long getUserId(String token) {
+    return Long.parseLong(parseClaims(token).getSubject());
+  }
+
+  public LocalDateTime getExpiredAt(String token) {
+    Date expiration = parseClaims(token).getExpiration();
+    return LocalDateTime.ofInstant(expiration.toInstant(), ZoneId.systemDefault());
+  }
+
+  private Claims parseClaims(String token) {
+    return Jwts.parser()
+        .verifyWith(secretKey)
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
   }
 }

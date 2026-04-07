@@ -8,7 +8,7 @@ interface StudyState {
 
 const initialState: StudyState = {
   currentStudy: null,
-  userRoleInCurrentStudy: "None"
+  userRoleInCurrentStudy: "NONE"
 };
 
 const studySlice = createSlice({
