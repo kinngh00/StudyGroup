@@ -7,15 +7,15 @@ import StudyGroup.StudyGroup.domain.study.dto.request.RecruitmentPostCreateReque
 import StudyGroup.StudyGroup.domain.study.dto.request.StudyApplicationCreateRequestDto;
 import StudyGroup.StudyGroup.domain.study.dto.response.RecruitmentPostResponseDto;
 import StudyGroup.StudyGroup.domain.study.dto.response.StudyApplicationResponseDto;
+import StudyGroup.StudyGroup.domain.study.entity.StudyAdminPermission;
 import StudyGroup.StudyGroup.domain.study.entity.StudyGroup;
 import StudyGroup.StudyGroup.domain.study.entity.StudyMember;
 import StudyGroup.StudyGroup.domain.study.entity.StudyMemberRole;
 import StudyGroup.StudyGroup.domain.study.entity.StudyStatus;
-import StudyGroup.StudyGroup.domain.study.entity.StudyAdminPermission;
 import StudyGroup.StudyGroup.domain.study.exception.StudyApplicationDuplicatedException;
 import StudyGroup.StudyGroup.domain.study.exception.StudyCapacityExceededException;
-import StudyGroup.StudyGroup.domain.study.repository.StudyApplicationRepository;
 import StudyGroup.StudyGroup.domain.study.repository.StudyAdminPermissionRepository;
+import StudyGroup.StudyGroup.domain.study.repository.StudyApplicationRepository;
 import StudyGroup.StudyGroup.domain.study.repository.StudyGroupRepository;
 import StudyGroup.StudyGroup.domain.study.repository.StudyMemberRepository;
 import StudyGroup.StudyGroup.domain.user.entity.User;
@@ -59,14 +59,14 @@ class RecruitmentServiceIntegrationTest {
     RecruitmentPostResponseDto recruitmentPostResponseDto = recruitmentService.createRecruitmentPost(
         ownerUser.getId(),
         studyGroup.getId(),
-        new RecruitmentPostCreateRequestDto("백엔드 스터디 모집", "함께 공부할 분 모집합니다.")
+        new RecruitmentPostCreateRequestDto("Backend Study Recruitment", "We are looking for backend members.")
     );
 
     recruitmentService.applyStudy(
         applicantUser.getId(),
         studyGroup.getId(),
         recruitmentPostResponseDto.recruitmentPostId(),
-        new StudyApplicationCreateRequestDto("열심히 하겠습니다.")
+        new StudyApplicationCreateRequestDto("I want to join this study.")
     );
 
     assertThrows(
@@ -75,7 +75,7 @@ class RecruitmentServiceIntegrationTest {
             applicantUser.getId(),
             studyGroup.getId(),
             recruitmentPostResponseDto.recruitmentPostId(),
-            new StudyApplicationCreateRequestDto("다시 신청합니다.")
+            new StudyApplicationCreateRequestDto("I want to apply again.")
         )
     );
   }
@@ -93,14 +93,14 @@ class RecruitmentServiceIntegrationTest {
     RecruitmentPostResponseDto recruitmentPostResponseDto = recruitmentService.createRecruitmentPost(
         ownerUser.getId(),
         studyGroup.getId(),
-        new RecruitmentPostCreateRequestDto("스프링 모집", "스프링 실전 스터디")
+        new RecruitmentPostCreateRequestDto("Spring Study Recruitment", "We practice Spring Boot projects.")
     );
 
     StudyApplicationResponseDto studyApplicationResponseDto = recruitmentService.applyStudy(
         applicantUser.getId(),
         studyGroup.getId(),
         recruitmentPostResponseDto.recruitmentPostId(),
-        new StudyApplicationCreateRequestDto("백엔드 실무 역량을 키우고 싶습니다.")
+        new StudyApplicationCreateRequestDto("I have experience with Java and want to improve.")
     );
 
     recruitmentService.approveApplication(
@@ -110,7 +110,10 @@ class RecruitmentServiceIntegrationTest {
         studyApplicationResponseDto.applicationId()
     );
 
-    boolean exists = studyMemberRepository.findByStudyGroupIdAndUserId(studyGroup.getId(), applicantUser.getId()).isPresent();
+    boolean exists = studyMemberRepository.findByStudyGroupIdAndUserId(
+        studyGroup.getId(),
+        applicantUser.getId()
+    ).isPresent();
     assertThat(exists).isTrue();
   }
 
@@ -125,20 +128,20 @@ class RecruitmentServiceIntegrationTest {
     RecruitmentPostResponseDto recruitmentPostResponseDto = recruitmentService.createRecruitmentPost(
         ownerUser.getId(),
         studyGroup.getId(),
-        new RecruitmentPostCreateRequestDto("정원 테스트 모집", "정원 제한 테스트")
+        new RecruitmentPostCreateRequestDto("Capacity Test Recruitment", "This study has a strict member limit.")
     );
 
     StudyApplicationResponseDto application1 = recruitmentService.applyStudy(
         applicantUser1.getId(),
         studyGroup.getId(),
         recruitmentPostResponseDto.recruitmentPostId(),
-        new StudyApplicationCreateRequestDto("신청1")
+        new StudyApplicationCreateRequestDto("Application 1")
     );
     StudyApplicationResponseDto application2 = recruitmentService.applyStudy(
         applicantUser2.getId(),
         studyGroup.getId(),
         recruitmentPostResponseDto.recruitmentPostId(),
-        new StudyApplicationCreateRequestDto("신청2")
+        new StudyApplicationCreateRequestDto("Application 2")
     );
 
     recruitmentService.approveApplication(
@@ -169,14 +172,14 @@ class RecruitmentServiceIntegrationTest {
     RecruitmentPostResponseDto recruitmentPostResponseDto = recruitmentService.createRecruitmentPost(
         ownerUser.getId(),
         studyGroup.getId(),
-        new RecruitmentPostCreateRequestDto("재신청 테스트", "거절 후 재신청")
+        new RecruitmentPostCreateRequestDto("Retry Recruitment", "Rejected applicants can apply again.")
     );
 
     StudyApplicationResponseDto firstApplication = recruitmentService.applyStudy(
         applicantUser.getId(),
         studyGroup.getId(),
         recruitmentPostResponseDto.recruitmentPostId(),
-        new StudyApplicationCreateRequestDto("첫 신청")
+        new StudyApplicationCreateRequestDto("First application")
     );
 
     recruitmentService.rejectApplication(
@@ -190,7 +193,7 @@ class RecruitmentServiceIntegrationTest {
         applicantUser.getId(),
         studyGroup.getId(),
         recruitmentPostResponseDto.recruitmentPostId(),
-        new StudyApplicationCreateRequestDto("재신청")
+        new StudyApplicationCreateRequestDto("Retry application")
     );
 
     assertThat(secondApplication.applicationId()).isEqualTo(firstApplication.applicationId());

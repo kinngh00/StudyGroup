@@ -52,20 +52,20 @@ class StudyManagementServiceIntegrationTest {
 
     Long studyGroupId = studyService.createStudy(
         ownerUser.getId(),
-        new StudyCreateRequestDto("블랙리스트 스터디", "블랙리스트 테스트", 10)
+        new StudyCreateRequestDto("Blacklist Study", "Blacklist policy test", 10)
     ).studyGroupId();
 
     RecruitmentPostResponseDto recruitmentPostResponseDto = recruitmentService.createRecruitmentPost(
         ownerUser.getId(),
         studyGroupId,
-        new RecruitmentPostCreateRequestDto("모집글", "모집 내용")
+        new RecruitmentPostCreateRequestDto("Recruitment", "Recruitment content")
     );
 
     studyMemberManagementService.addBlacklist(
         ownerUser.getId(),
         studyGroupId,
         applicantUser.getId(),
-        new StudyRestrictionRequestDto("재가입 제한")
+        new StudyRestrictionRequestDto("Repeated policy violation")
     );
 
     assertThrows(
@@ -74,7 +74,7 @@ class StudyManagementServiceIntegrationTest {
             applicantUser.getId(),
             studyGroupId,
             recruitmentPostResponseDto.recruitmentPostId(),
-            new StudyApplicationCreateRequestDto("지원합니다")
+            new StudyApplicationCreateRequestDto("Please accept my application.")
         )
     );
   }
@@ -85,14 +85,14 @@ class StudyManagementServiceIntegrationTest {
 
     Long studyGroupId = studyService.createStudy(
         ownerUser.getId(),
-        new StudyCreateRequestDto("일정 스터디", "일정 테스트", 10)
+        new StudyCreateRequestDto("Schedule Study", "Schedule management test", 10)
     ).studyGroupId();
 
     LocalDateTime firstScheduleAt = LocalDateTime.now().plusDays(1);
     StudyScheduleResponseDto createdSchedule = studyScheduleService.createSchedule(
         ownerUser.getId(),
         studyGroupId,
-        new StudyScheduleCreateRequestDto("1주차 모임", "오리엔테이션", firstScheduleAt)
+        new StudyScheduleCreateRequestDto("Week 1 Meeting", "Orientation", firstScheduleAt)
     );
 
     List<StudyScheduleResponseDto> scheduleList = studyScheduleService.getSchedules(ownerUser.getId(), studyGroupId);
@@ -104,9 +104,9 @@ class StudyManagementServiceIntegrationTest {
         ownerUser.getId(),
         studyGroupId,
         createdSchedule.studyScheduleId(),
-        new StudyScheduleUpdateRequestDto("1주차 변경", "OT 변경", updatedScheduleAt)
+        new StudyScheduleUpdateRequestDto("Week 1 Updated", "Updated orientation", updatedScheduleAt)
     );
-    assertThat(updatedSchedule.title()).isEqualTo("1주차 변경");
+    assertThat(updatedSchedule.title()).isEqualTo("Week 1 Updated");
 
     studyScheduleService.deleteSchedule(ownerUser.getId(), studyGroupId, createdSchedule.studyScheduleId());
     assertThat(studyScheduleService.getSchedules(ownerUser.getId(), studyGroupId)).isEmpty();
@@ -118,20 +118,20 @@ class StudyManagementServiceIntegrationTest {
 
     Long recruitingStudyGroupId = studyService.createStudy(
         ownerUser.getId(),
-        new StudyCreateRequestDto("자바 스터디", "자바 백엔드", 10)
+        new StudyCreateRequestDto("Java Study", "Java backend study", 10)
     ).studyGroupId();
     Long closedStudyGroupId = studyService.createStudy(
         ownerUser.getId(),
-        new StudyCreateRequestDto("파이썬 스터디", "파이썬 데이터", 10)
+        new StudyCreateRequestDto("Data Study", "Data analysis study", 10)
     ).studyGroupId();
 
     studyService.updateStudy(
         ownerUser.getId(),
         closedStudyGroupId,
-        new StudyUpdateRequestDto("파이썬 스터디", "파이썬 데이터", 10, StudyStatus.RECRUITMENT_CLOSED)
+        new StudyUpdateRequestDto("Data Study", "Data analysis study", 10, StudyStatus.RECRUITMENT_CLOSED)
     );
 
-    List<StudySummaryResponseDto> keywordResult = studyService.getStudies("자바", null, null);
+    List<StudySummaryResponseDto> keywordResult = studyService.getStudies("Java", null, null);
     assertThat(keywordResult).hasSize(1);
     assertThat(keywordResult.get(0).studyGroupId()).isEqualTo(recruitingStudyGroupId);
 
@@ -140,7 +140,8 @@ class StudyManagementServiceIntegrationTest {
     assertThat(closedResult.get(0).studyGroupId()).isEqualTo(closedStudyGroupId);
 
     List<StudySummaryResponseDto> statusResult = studyService.getStudies(null, StudyStatus.RECRUITING, null);
-    assertThat(statusResult).anyMatch(studySummaryResponseDto -> studySummaryResponseDto.studyGroupId().equals(recruitingStudyGroupId));
+    assertThat(statusResult)
+        .anyMatch(studySummaryResponseDto -> studySummaryResponseDto.studyGroupId().equals(recruitingStudyGroupId));
   }
 
   private User createUser(String email, String name) {

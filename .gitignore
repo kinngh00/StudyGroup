@@ -39,3 +39,4 @@ out/
 ### Frontend Build Outputs ###
 frontend/dist/
 frontend/*.tsbuildinfo
+frontend/node_modules/
